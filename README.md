@@ -1,9 +1,11 @@
 # Ruby on Whales
 
-<img align="right" height="200" width="240"
-     title="Ruby on Whales logo" src="./assets/logo.png">
-
 This repository contains an example dockerized Ruby on Rails development configuration based on the [Ruby on Whales blog post][the-post].
+
+<p align="center">
+  <img width="360" height="300" 
+       title="Ruby on Whales logo" src="./assets/logo.png">
+</p>
 
 ## Example configuration
 
@@ -14,7 +16,7 @@ See the [example](./example) folder.
 We also provide an interactive generator for Rails apps to quickly setup a dockerized environment for your app. Just run the following command and follow the instructions:
 
 ```sh
-bundle execrails app:template LOCATION="https://railsbytes.com/script/TODO"
+bundle exec rails app:template LOCATION="https://railsbytes.com/script/TODO"
 ```
 
 ## See also
