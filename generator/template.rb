@@ -3,8 +3,9 @@ say "👋 Welcome to interactive Ruby on Whales installer 🐳. " \
 
 DOCKER_DEV_ROOT = ".dockerdev"
 
+# Prepare variables and utility files
 <%= include "ruby_details" %>
 <%= include "aptfile" %>
 <%= include "database" %>
-
+<%= include "node" %>
 say_status :info, "✅  You're ready to sail!"

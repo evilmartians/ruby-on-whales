@@ -3,21 +3,21 @@
 require "erb"
 
 class TemplateRenderer
-  attr_reader :contents, :root
+  attr_reader :template, :root
 
-  def initialize(contents, root:)
-    @contents = contents
+  def initialize(template, root:)
+    @template = template
     @root = root
   end
 
-  def render
+  def render(contents = template)
     ERB.new(contents).result(binding)
   end
 
   def code(path)
     contents = File.read(resolve_path(path))
     %Q(<<-CODE
-#{contents}
+#{render(contents)}
 CODE)
   end
 
