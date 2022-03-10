@@ -5,5 +5,6 @@ DOCKER_DEV_ROOT = ".dockerdev"
 
 <%= include "ruby_details" %>
 <%= include "aptfile" %>
+<%= include "database" %>
 
 say_status :info, "✅  You're ready to sail!"

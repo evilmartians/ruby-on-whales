@@ -64,7 +64,7 @@ class GeneratorTestCase < Minitest::Test
   end
 
   def assert_line_printed(io, line)
-    io.expect(line, 2)
+    assert io.expect(line, 2), "Expected to print line: #{line}. Got: #{io.instance_variable_get(:@unusedBuf)}"
   end
 
   def assert_file_contains(path, body)
