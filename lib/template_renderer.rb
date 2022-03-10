@@ -11,14 +11,17 @@ class TemplateRenderer
   end
 
   def render(contents = template)
-    ERB.new(contents).result(binding)
+    ERB.new(contents, trim_mode: "<>").result(binding)
   end
 
   def code(path)
     contents = File.read(resolve_path(path))
-    %Q(<<-CODE
-#{render(contents)}
-CODE)
+%Q(ERB.new(
+  *[
+<<~'CODE'
+#{contents}
+CODE
+], trim_mode: "<>").result(binding))
   end
 
   def include(path)
@@ -32,6 +35,8 @@ CODE)
     _%{path}
     %{path}.rb
     _%{path}.rb
+    %{path}.tt
+    _%{path}.tt
   ).freeze
 
   def resolve_path(path)

@@ -7,8 +7,10 @@ DOCKER_DEV_ROOT = ".dockerdev"
 <%= include "ruby_details" %>
 <%= include "aptfile" %>
 <%= include "database" %>
+<%= include "postgres" %>
 <%= include "node" %>
 
 # Generate configuration
-file "#{DOCKER_DEV_ROOT}/Dockerfile", <%= code("dockerfile") %>
+file "#{DOCKER_DEV_ROOT}/Dockerfile", <%= code("Dockerfile") %>
+
 say_status :info, "✅  You're ready to sail!"

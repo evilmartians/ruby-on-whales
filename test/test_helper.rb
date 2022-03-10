@@ -58,11 +58,8 @@ class GeneratorTestCase < Minitest::Test
       ) do |stdin, stdout_or_err, wait_thr|
         stdin.sync = true
         stdout_or_err.sync = true
-        yield stdin, stdout_or_err
-      ensure
-        puts stdout_or_err.read unless wait_thr.value.success?
-        # Make sure we do not read from the same stdout again in the next test
-        stdout_or_err.close
+        yield stdin, stdout_or_err if block_given?
+        assert wait_thr.value.success?, "Process exited with #{wait_thr.value}.\n #{stdout_or_err.read}"
       end
     end
   end
@@ -75,7 +72,21 @@ class GeneratorTestCase < Minitest::Test
     fullpath = File.join(rails_root, path)
     assert File.file?(fullpath), "File not found: #{path}"
 
-    actual = File.read(fullpath)
+    actual = (read_file_cache[fullpath] ||= File.read(fullpath))
     assert_includes actual, body
+  end
+
+  def refute_file_contains(path, body)
+    fullpath = File.join(rails_root, path)
+    assert File.file?(fullpath), "File not found: #{path}"
+
+    actual = (read_file_cache[fullpath] ||= File.read(fullpath))
+    refute_includes actual, body
+  end
+
+  private
+
+  def read_file_cache
+    @read_file_cache ||= {}
   end
 end
