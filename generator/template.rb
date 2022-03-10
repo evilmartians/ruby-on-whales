@@ -15,9 +15,20 @@ DOCKER_DEV_ROOT = ".dockerdev"
 # Generate configuration
 file "#{DOCKER_DEV_ROOT}/Dockerfile", <%= code("Dockerfile") %>
 file "#{DOCKER_DEV_ROOT}/compose.yml", <%= code("compose.yml") %>
+file "dip.yml", <%= code("dip.yml") %>
 
-say_status :info, "✅  You're ready to sail!"
+file "#{DOCKER_DEV_ROOT}/.bashrc", <%= code(".bashrc") %>
+if postgres_version
+  file "#{DOCKER_DEV_ROOT}/.psqlrc", <%= code(".psqlrc") %>
+end
+
+file "#{DOCKER_DEV_ROOT}/README.md", <%= code("README.md") %>
+
+say "📝  Important things to take care of:"
+say "  - Make sure you have `ENV["RAILS_ENV"] = "test"` (not `ENV["RAILS_ENV"] ||= "test"`) in your test helper.
 
 if database_url
-  say_status :warn, "Don't forget to add `url: <%= ENV['DATABASE_URL']` to your database.yml"
+  say "  - Don't forget to add `url: <%= ENV['DATABASE_URL']` to your database.yml"
 end
+
+say_status :info, "✅  You're ready to sail! Check out #{DOCKER_DEV_ROOT}/README.md"

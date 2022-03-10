@@ -76,6 +76,11 @@ class GeneratorTestCase < Minitest::Test
     assert_includes actual, body
   end
 
+  def assert_file(path)
+    fullpath = File.join(rails_root, path)
+    assert File.file?(fullpath), "File not found: #{path}"
+  end
+
   def refute_file_contains(path, body)
     fullpath = File.join(rails_root, path)
     assert File.file?(fullpath), "File not found: #{path}"
