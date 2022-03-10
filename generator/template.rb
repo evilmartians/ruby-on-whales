@@ -8,4 +8,7 @@ DOCKER_DEV_ROOT = ".dockerdev"
 <%= include "aptfile" %>
 <%= include "database" %>
 <%= include "node" %>
+
+# Generate configuration
+file "#{DOCKER_DEV_ROOT}/Dockerfile", <%= code("dockerfile") %>
 say_status :info, "✅  You're ready to sail!"
