@@ -40,3 +40,27 @@ class PostgresTest < GeneratorTestCase
     end
   end
 end
+
+class PostgisTest < GeneratorTestCase
+  template %q(
+    database_adapter = "postgis"
+    <%= include "postgres" %>
+
+    puts "POSTGRES_IMAGE=#{postgres_base_image}:#{postgres_version}"
+  )
+
+  def test_default_postgres_version
+    run_generator do |input, output|
+      input.puts ""
+      assert_line_printed(
+        output,
+        "Which PostgreSQL version do you want to install? (Press ENTER to use 14)"
+      )
+
+      assert_line_printed(
+        output,
+        "POSTGRES_IMAGE=postgis/postgis:14"
+      )
+    end
+  end
+end

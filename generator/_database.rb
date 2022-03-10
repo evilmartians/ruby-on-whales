@@ -1,9 +1,10 @@
 # Set up database related variables, create files
 
 database_adapter = nil
+database_url = nil
 
 begin
-  supported_adapters = %w(postgresql)
+  supported_adapters = %w(postgresql postgis postgres)
 
   config_path = "config/database.yml"
 
