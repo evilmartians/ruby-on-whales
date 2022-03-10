@@ -1,13 +1,21 @@
 x-app: &app
   build:
     args:
-      RUBY_VERSION: '3.1.0'
-      PG_MAJOR: '14'
-      NODE_MAJOR: '16'
-      YARN_VERSION: '1.22.17'
-  image: example-dev:1.0.0
+      RUBY_VERSION: '<%= ruby_version %>'
+<% if postgres_version %>
+      PG_MAJOR: '<%= postgres_version.split('.', 2).first %>'
+<% end %>
+<% if node_version %>
+      NODE_MAJOR: '<%= node_version.split('.', 2).first %>'
+<% end %>
+<% if yarn_version && yarn_version != 'latest' %>
+      YARN_VERSION: '<%= yarn_version %>'
+<% end %>
+  image: <%= app_name %>-dev:1.0.0
   environment: &env
+<% if node_version %>
     NODE_ENV: ${NODE_ENV:-development}
+<% end %>
     RAILS_ENV: ${RAILS_ENV:-development}
   tmpfs:
     - /tmp
@@ -21,31 +29,51 @@ x-backend: &backend
     - ..:/app:cached
     - bundle:/usr/local/bundle
     - rails_cache:/app/tmp/cache
+<% if node_version %>
     - node_modules:/app/node_modules
+<% end %>
+<% if gemspecs.key?("webpacker") %>
     - packs:/app/public/packs
     - packs-test:/app/public/packs-test
+<% end %>
     - history:/usr/local/hist
+<% if postgres_version %>
     - ./.psqlrc:/root/.psqlrc:ro
+<% end %>
     - ./.bashrc:/root/.bashrc:ro
   environment: &backend_environment
     <<: *env
+<% if redis_version %>
     REDIS_URL: redis://redis:6379/
+<% end %>
+<% if database_url %>
     DATABASE_URL: postgres://postgres:postgres@postgres:5432
+<% end %>
+<% if gemspecs.key?("webpacker") %>
     WEBPACKER_DEV_SERVER_HOST: webpacker
+<% end %>
     MALLOC_ARENA_MAX: 2
     WEB_CONCURRENCY: ${WEB_CONCURRENCY:-1}
     BOOTSNAP_CACHE_DIR: /usr/local/bundle/_bootsnap
     XDG_DATA_HOME: /app/tmp/caches
+<% if yarn_version %>
     YARN_CACHE_FOLDER: /app/node_modules/.yarn-cache
+<% end %>
     HISTFILE: /usr/local/hist/.bash_history
+<% if postgres_version %>
     PSQL_HISTFILE: /usr/local/hist/.psql_history
+<% end %>
     IRB_HISTFILE: /usr/local/hst/.irb_history
     EDITOR: vi
   depends_on: &backend_depends_on
+<% if postgres_version %>
     postgres:
       condition: service_healthy
+<% end %>
+<% if redis_version %>
     redis:
       condition: service_healthy
+<% end %>
 
 services:
   rails:
@@ -58,17 +86,24 @@ services:
     ports:
       - '3000:3000'
     depends_on:
+<% if gemspecs.key?("webpacker") %>
       webpacker:
         condition: service_started
+<% end %>
+<% if gemspecs.key?("sidekiq") %>
       sidekiq:
         condition: service_started
+<% end %>
+<% if gemspecs.key?("sidekiq") %>
 
   sidekiq:
     <<: *backend
     command: bundle exec sidekiq
+<% end %>
+<% if postgres_version %>
 
   postgres:
-    image: postgres:14
+    image: postgres:<%= postgres_version %>
     volumes:
       - .psqlrc:/root/.psqlrc:ro
       - postgres:/var/lib/postgresql/data
@@ -81,9 +116,11 @@ services:
     healthcheck:
       test: pg_isready -U postgres -h 127.0.0.1
       interval: 5s
+<% end %>
+<% if redis_version %>
 
   redis:
-    image: redis:6.2-alpine
+    image: redis:<%= redis_version %>-alpine
     volumes:
       - redis:/data
     ports:
@@ -93,6 +130,8 @@ services:
       interval: 1s
       timeout: 3s
       retries: 30
+<% end %>
+<% if gemspecs.key?("webpacker") %>
 
   webpacker:
     <<: *app
@@ -109,13 +148,22 @@ services:
       <<: *env
       WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
       YARN_CACHE_FOLDER: /app/node_modules/.yarn-cache
+<% end %>
 
 volumes:
   bundle:
+<% if node_version %>
   node_modules:
+<% end %>
   history:
   rails_cache:
+<% if postgres_version %>
   postgres:
+<% end %>
+<% if redis_version %>
   redis:
+<% end %>
+<% if gemspecs.key?("webpacker") %>
   packs:
   packs-test:
+<% end %>
