@@ -13,11 +13,11 @@ class RubyDetailsTest < GeneratorTestCase
       input.puts
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (Press ENTER to use 3.0.2)"
+        "Which Ruby version would you like to use? (Press ENTER to use #{RUBY_VERSION})"
       )
       assert_line_printed(
         output,
-        "RUBY_VERSION=3.0.2"
+        "RUBY_VERSION=#{RUBY_VERSION}"
       )
     end
   end
@@ -27,7 +27,7 @@ class RubyDetailsTest < GeneratorTestCase
       input.puts "3.1.0"
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (Press ENTER to use 3.0.2)"
+        "Which Ruby version would you like to use? (Press ENTER to use #{RUBY_VERSION})"
       )
       assert_line_printed(
         output,
@@ -41,7 +41,7 @@ class RubyDetailsTest < GeneratorTestCase
       input.puts "3_1z2b0\n3.1.1"
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (Press ENTER to use 3.0.2)"
+        "Which Ruby version would you like to use? (Press ENTER to use #{RUBY_VERSION})"
       )
       assert_line_printed(
         output,

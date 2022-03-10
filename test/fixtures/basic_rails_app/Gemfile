@@ -4,4 +4,4 @@ source "https://rubygems.org"
 
 ruby "~> 3.0"
 
-gem "rails"
+eval_gemfile "../../../test/fixtures/test.gemfile"

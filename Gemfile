@@ -9,3 +9,5 @@ gem "rake"
 gem "minitest"
 gem "minitest-focus"
 gem "minitest-reporters"
+
+eval_gemfile "test/fixtures/test.gemfile"

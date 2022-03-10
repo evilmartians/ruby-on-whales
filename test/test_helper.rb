@@ -49,8 +49,10 @@ class GeneratorTestCase < Minitest::Test
 
   def run_generator
     Bundler.with_unbundled_env do
+      env = {}
+      env["BUNDLE_PATH"] = File.expand_path(File.join(__dir__, "..", "vendor", "bundle")) if ENV["CI"] == "true"
       Open3.popen2e(
-        {},
+        env,
         "bundle exec rails app:template LOCATION=#{File.expand_path(self.class.current_template)}",
         chdir: @rails_root
       ) do |stdin, stdout_or_err, wait_thr|
@@ -59,6 +61,8 @@ class GeneratorTestCase < Minitest::Test
         yield stdin, stdout_or_err
       ensure
         puts stdout_or_err.read unless wait_thr.value.success?
+        # Make sure we do not read from the same stdout again in the next test
+        stdout_or_err.close
       end
     end
   end
