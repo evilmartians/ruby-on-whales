@@ -1,4 +1,4 @@
-say "👋 Welcome to interactive Ruby on Whales installer 🐳. " \
+say "👋 Welcome to interactive Ruby on Whales installer 🐳.\n" \
     "Make sure you've read the guide: https://evilmartians.com/chronicles/ruby-on-whales-docker-for-ruby-rails-development"
 
 DOCKER_DEV_ROOT = ".dockerdev"
@@ -24,11 +24,17 @@ end
 
 file "#{DOCKER_DEV_ROOT}/README.md", <%= code("README.md") %>
 
-say "📝  Important things to take care of:"
-say "  - Make sure you have `ENV["RAILS_ENV"] = "test"` (not `ENV["RAILS_ENV"] ||= "test"`) in your test helper.
+todos = [
+  "📝  Important things to take care of:",
+  "  - Make sure you have `ENV[\"RAILS_ENV\"] = \"test\"` (not `ENV[\"RAILS_ENV\"] ||= \"test\"`) in your test helper."
+]
 
 if database_url
-  say "  - Don't forget to add `url: <%= ENV['DATABASE_URL']` to your database.yml"
+  todos << "  - Don't forget to add `url: <%= ENV[\"DATABASE_URL\"]` to your database.yml"
 end
 
-say_status :info, "✅  You're ready to sail! Check out #{DOCKER_DEV_ROOT}/README.md"
+if todos.any?
+  say_status(:warn, todos.join("\n"))
+end
+
+say_status :info, "✅  You're ready to sail! Check out #{DOCKER_DEV_ROOT}/README.md or run `dip provision && dip up web` 🚀"

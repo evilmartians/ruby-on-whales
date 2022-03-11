@@ -24,4 +24,4 @@ task :build_template do
   puts TemplateRenderer.new(File.read(File.join(__dir__, "generator", "template.rb")), root: File.join(__dir__, "generator")).render
 end
 
-task default: %w[test]
+task default: %w[test:isolated]

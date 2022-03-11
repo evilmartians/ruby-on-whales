@@ -7,7 +7,7 @@ CODE
 begin
   deps = []
   loop do
-    dep = ask "Which system package do you want to install? (Press ENTER to skip)"
+    dep = ask "Which system package do you want to install? (Press ENTER to continue)"
     break if dep.empty?
     deps << dep
   end

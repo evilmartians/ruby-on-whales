@@ -3,9 +3,7 @@ ARG DISTRO_NAME=bullseye
 
 FROM ruby:$RUBY_VERSION-slim-$DISTRO_NAME
 
-ARG PG_MAJOR
-ARG NODE_MAJOR
-ARG YARN_VERSION
+ARG DISTRO_NAME
 
 # Common dependencies
 RUN apt-get update -qq \
@@ -20,36 +18,46 @@ RUN apt-get update -qq \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && truncate -s 0 /var/log/*log
 
-# Add PostgreSQL to sources list
+ARG PG_MAJOR
 RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && echo deb http://apt.postgresql.org/pub/repos/apt/ $DISTRO_NAME-pgdg main $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
+RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+    libpq-dev \
+    postgresql-client-$PG_MAJOR && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    truncate -s 0 /var/log/*log
 
-# Add NodeJS to sources list
+ARG NODE_MAJOR
 RUN curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
+RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+    nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    truncate -s 0 /var/log/*log
+
+ARG YARN_VERSION
+RUN npm install -g yarn@$YARN_VERSION
 
 # Application dependencies
 # We use an external Aptfile for this, stay tuned
 COPY Aptfile /tmp/Aptfile
 RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
   DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-    libpq-dev \
-    postgresql-client-$PG_MAJOR \
-    nodejs \
     $(grep -Ev '^\s*#' /tmp/Aptfile | xargs) && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     truncate -s 0 /var/log/*log
-
-# Install Yarn via NPM
-RUN npm install -g yarn@$YARN_VERSION
 
 # Configure bundler
 ENV LANG=C.UTF-8 \
   BUNDLE_JOBS=4 \
   BUNDLE_RETRY=3
 
-# Uncomment this line if you store Bundler settings in the project's root
-# ENV BUNDLE_APP_CONFIG=.bundle
+# Store Bundler settings in the project's root
+ENV BUNDLE_APP_CONFIG=.bundle
 
 # Uncomment this line if you want to run binstubs without prefixing with `bin/` or `bundle exec`
 # ENV PATH /app/bin:$PATH

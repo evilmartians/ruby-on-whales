@@ -16,7 +16,7 @@ See the [example](./example) folder.
 We also provide an interactive generator for Rails apps to quickly setup a dockerized environment for your app. Just run the following command and follow the instructions:
 
 ```sh
-bundle exec rails app:template LOCATION="https://railsbytes.com/script/TODO"
+bundle exec rails app:template LOCATION='https://railsbytes.com/script/z5OsoB'
 ```
 
 ## See also

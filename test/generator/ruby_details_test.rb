@@ -38,7 +38,7 @@ class RubyDetailsTest < GeneratorTestCase
 
   def test_when_ruby_version_is_incorrect
     run_generator do |input, output|
-      input.puts "3_1z2b0\n3.1.1"
+      input.puts "3_1z2b0\r3.1.1"
       assert_line_printed(
         output,
         "Which Ruby version would you like to use? (Press ENTER to use #{RUBY_VERSION})"

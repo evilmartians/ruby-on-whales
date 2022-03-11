@@ -26,6 +26,7 @@ class ComposeTest < GeneratorTestCase
       "compose.yml",
 <<-CODE
   build:
+    context: .
     args:
       RUBY_VERSION: '2.7.1'
       PG_MAJOR: '13'
@@ -100,13 +101,14 @@ class ComposeMinimalTest < GeneratorTestCase
     file "compose.yml", <%= code("compose.yml") %>
   CODE
 
-  def test_slim_dockerfile
+  def test_minimal_compose
     run_generator
 
     assert_file_contains(
       "compose.yml",
 <<-CODE
   build:
+    context: .
     args:
       RUBY_VERSION: '3.0'
   image: app-name-dev:1.0.0

@@ -72,7 +72,7 @@ class GeneratorTestCase < Minitest::Test
     fullpath = File.join(rails_root, path)
     assert File.file?(fullpath), "File not found: #{path}"
 
-    actual = (read_file_cache[fullpath] ||= File.read(fullpath))
+    actual = File.read(fullpath)
     assert_includes actual, body
   end
 
@@ -85,13 +85,7 @@ class GeneratorTestCase < Minitest::Test
     fullpath = File.join(rails_root, path)
     assert File.file?(fullpath), "File not found: #{path}"
 
-    actual = (read_file_cache[fullpath] ||= File.read(fullpath))
+    actual = File.read(fullpath)
     refute_includes actual, body
-  end
-
-  private
-
-  def read_file_cache
-    @read_file_cache ||= {}
   end
 end

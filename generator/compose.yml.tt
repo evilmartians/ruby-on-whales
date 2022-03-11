@@ -1,5 +1,6 @@
 x-app: &app
   build:
+    context: .
     args:
       RUBY_VERSION: '<%= ruby_version %>'
 <% if postgres_version %>
@@ -29,6 +30,9 @@ x-backend: &backend
     - ..:/app:cached
     - bundle:/usr/local/bundle
     - rails_cache:/app/tmp/cache
+<% if File.directory?("app/assets") %>
+    - assets:/app/public/assets
+<% end %>
 <% if node_version %>
     - node_modules:/app/node_modules
 <% end %>
@@ -65,7 +69,8 @@ x-backend: &backend
 <% end %>
     IRB_HISTFILE: /usr/local/hst/.irb_history
     EDITOR: vi
-  depends_on: &backend_depends_on
+<% if postgres_version || redis_version %>
+  depends_on:
 <% if postgres_version %>
     postgres:
       condition: service_healthy
@@ -73,6 +78,7 @@ x-backend: &backend
 <% if redis_version %>
     redis:
       condition: service_healthy
+<% end %>
 <% end %>
 
 services:
@@ -85,6 +91,7 @@ services:
     command: bundle exec rails server -b 0.0.0.0
     ports:
       - '3000:3000'
+<% if gemspecs.key?("webpacker") || gemspecs.key?("sidekiq") %>
     depends_on:
 <% if gemspecs.key?("webpacker") %>
       webpacker:
@@ -93,6 +100,7 @@ services:
 <% if gemspecs.key?("sidekiq") %>
       sidekiq:
         condition: service_started
+<% end %>
 <% end %>
 <% if gemspecs.key?("sidekiq") %>
 
@@ -162,6 +170,9 @@ volumes:
 <% end %>
 <% if redis_version %>
   redis:
+<% end %>
+<% if File.directory?("app/assets") %>
+  assets:
 <% end %>
 <% if gemspecs.key?("webpacker") %>
   packs:

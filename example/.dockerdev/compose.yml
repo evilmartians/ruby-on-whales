@@ -1,5 +1,6 @@
 x-app: &app
   build:
+    context: .
     args:
       RUBY_VERSION: '3.1.0'
       PG_MAJOR: '14'

@@ -12,7 +12,7 @@ class NodeTest < GeneratorTestCase
 
   def test_default_node_versions
     run_generator do |input, output|
-      input.puts "\n "
+      input.puts "\r"
       assert_line_printed(
         output,
         "Which Node version do you want to install? (Press ENTER to use 16, type 'n/no' to skip installing Node)"
@@ -37,7 +37,7 @@ class NodeTest < GeneratorTestCase
 
   def test_custom_node_versions
     run_generator do |input, output|
-      input.puts "14\n1.13.0"
+      input.puts "14\r1.13.0"
       assert_line_printed(
         output,
         "Which Node version do you want to install? (Press ENTER to use 16, type 'n/no' to skip installing Node)"

@@ -14,7 +14,7 @@ class AptfileTest < GeneratorTestCase
       input.puts
       assert_line_printed(
         output,
-        "Which system package do you want to install? (Press ENTER to skip)"
+        "Which system package do you want to install? (Press ENTER to continue)"
       )
     end
 
@@ -26,14 +26,14 @@ class AptfileTest < GeneratorTestCase
 
   def test_with_user_provided_deps
     run_generator do |input, output|
-      input.puts "ntp\r\n"
+      input.puts "ntp\r"
       assert_line_printed(
         output,
-        "Which system package do you want to install? (Press ENTER to skip)"
+        "Which system package do you want to install? (Press ENTER to continue)"
       )
       assert_line_printed(
         output,
-        "Which system package do you want to install? (Press ENTER to skip)"
+        "Which system package do you want to install? (Press ENTER to continue)"
       )
     end
 
