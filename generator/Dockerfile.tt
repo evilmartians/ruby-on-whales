@@ -17,6 +17,7 @@ RUN apt-get update -qq \
   && rm -rf /var/cache/apt/archives/* \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
   && truncate -s 0 /var/log/*log
+<% if postgres_version %>
 
 ARG PG_MAJOR
 RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
@@ -28,6 +29,8 @@ RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrad
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     truncate -s 0 /var/log/*log
+<% end %>
+<% if node_version %>
 
 ARG NODE_MAJOR
 RUN curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
@@ -37,9 +40,15 @@ RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrad
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     truncate -s 0 /var/log/*log
+<% if yarn_version == 'latest' %>
+
+RUN npm install -g yarn
+<% else %>
 
 ARG YARN_VERSION
 RUN npm install -g yarn@$YARN_VERSION
+<% end %>
+<% end %>
 
 # Application dependencies
 # We use an external Aptfile for this, stay tuned
