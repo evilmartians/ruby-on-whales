@@ -16,7 +16,7 @@ class DockerfileTest < GeneratorTestCase
 
     assert_file_contains(
       "Dockerfile",
-      "RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add"
+      "RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc"
     )
 
     assert_file_contains(
@@ -45,7 +45,7 @@ class DockerfileMinimalTest < GeneratorTestCase
 
     refute_file_contains(
       "Dockerfile",
-      "RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add"
+      "RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc"
     )
 
     refute_file_contains(
