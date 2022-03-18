@@ -11,7 +11,7 @@ compose:
   project_name: example_demo
 
 interaction:
-  # This command spins up a Rails container with the requried dependencies (such as databases),
+  # This command spins up a Rails container with the required dependencies (such as databases),
   # and opens a terminal within it.
   runner:
     description: Open a Bash shell within a Rails container (with dependencies up)
@@ -34,7 +34,7 @@ interaction:
 
   # A shortcut to run RSpec (which overrides the RAILS_ENV)
   rspec:
-    description: Run Rspec commands
+    description: Run RSpec commands
     service: rails
     environment:
       RAILS_ENV: test
