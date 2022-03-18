@@ -66,9 +66,10 @@ ENV BUNDLE_APP_CONFIG=.bundle
 # Uncomment this line if you want to run binstubs without prefixing with `bin/` or `bundle exec`
 # ENV PATH /app/bin:$PATH
 
-# Upgrade RubyGems and install the latest Bundler version
+# Upgrade RubyGems and install the configured Bundler version
+ARG BUNDLER_VERSION
 RUN gem update --system && \
-    gem install bundler
+    gem install bundler -v $BUNDLER_VERSION
 
 # Create a directory for the app code
 RUN mkdir -p /app

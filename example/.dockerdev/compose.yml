@@ -6,6 +6,7 @@ x-app: &app
       PG_MAJOR: '14'
       NODE_MAJOR: '16'
       YARN_VERSION: '1.22.17'
+      BUNDLER_VERSION: '2.3.9'
   image: example-dev:1.0.0
   environment: &env
     NODE_ENV: ${NODE_ENV:-development}
