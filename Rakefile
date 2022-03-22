@@ -21,7 +21,9 @@ desc "Generate installation template"
 task :build_template do
   require_relative "lib/template_renderer"
 
-  puts TemplateRenderer.new(File.read(File.join(__dir__, "generator", "template.rb")), root: File.join(__dir__, "generator")).render
+  TemplateRenderer.new(File.read(File.join(__dir__, "generator", "template.rb")), root: File.join(__dir__, "generator")).render.tap do |template|
+    puts template
+  end
 end
 
 desc "Push installation template to RailsBytes"
