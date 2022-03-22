@@ -62,6 +62,9 @@ class GeneratorTestCase < Minitest::Test
         assert wait_thr.value.success?, "Process exited with #{wait_thr.value}.\n #{stdout_or_err.read}"
       end
     end
+
+    # Cooldown to avoid stale reads
+    sleep 5
   end
 
   def assert_line_printed(io, line)
