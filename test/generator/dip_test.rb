@@ -35,7 +35,7 @@ CODE
       "dip.yml",
 <<-CODE
   rspec:
-    description: Run Rspec commands
+    description: Run RSpec commands
 CODE
     )
 
@@ -89,7 +89,7 @@ CODE
       "dip.yml",
 <<-CODE
   rspec:
-    description: Run Rspec commands
+    description: Run RSpec commands
 CODE
     )
 
