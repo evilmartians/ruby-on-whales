@@ -1,6 +1,6 @@
 # Change log
 
-## master
+## main
 
 - Automatic publish to RailsBytes in CI. ([@fargelus][])
 
