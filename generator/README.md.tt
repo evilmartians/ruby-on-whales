@@ -68,7 +68,6 @@ dip yarn install
 # run psql console
 dip psql
 <% end %>
-
 <% if redis_version %>
 
 # run Redis console

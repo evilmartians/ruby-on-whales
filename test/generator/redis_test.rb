@@ -18,7 +18,7 @@ class RedisTest < GeneratorTestCase
       input.puts
       assert_line_printed(
         output,
-        "Which Redis version do you want to install? (Press ENTER to use 6.0)"
+        "Which Redis version do you want to use? (Press ENTER to use 6.0)"
       )
 
       assert_line_printed(
@@ -33,7 +33,7 @@ class RedisTest < GeneratorTestCase
       input.puts "4.0"
       assert_line_printed(
         output,
-        "Which Redis version do you want to install?"
+        "Which Redis version do you want to use?"
       )
 
       assert_line_printed(
