@@ -67,7 +67,7 @@ x-backend: &backend
 <% if postgres_version %>
     PSQL_HISTFILE: /usr/local/hist/.psql_history
 <% end %>
-    IRB_HISTFILE: /usr/local/hst/.irb_history
+    IRB_HISTFILE: /usr/local/hist/.irb_history
     EDITOR: vi
 <% if postgres_version || redis_version %>
   depends_on:

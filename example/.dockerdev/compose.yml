@@ -40,7 +40,7 @@ x-backend: &backend
     YARN_CACHE_FOLDER: /app/node_modules/.yarn-cache
     HISTFILE: /usr/local/hist/.bash_history
     PSQL_HISTFILE: /usr/local/hist/.psql_history
-    IRB_HISTFILE: /usr/local/hst/.irb_history
+    IRB_HISTFILE: /usr/local/hist/.irb_history
     EDITOR: vi
   depends_on: &backend_depends_on
     postgres:
