@@ -73,7 +73,7 @@ interaction:
   psql:
     description: Run Postgres psql console
     service: postgres
-    default_args: anycasts_dev
+    default_args: <%= app_name %>_development
     command: psql -h postgres -U postgres
 <% end %>
 <% if redis_version %>
@@ -85,7 +85,7 @@ interaction:
 <% end %>
 
 provision:
-  - dip compose down --volumes
+  - dip compose down --volumes || true
 <% if postgres_version %>
   - dip compose up -d postgres
 <% end %>

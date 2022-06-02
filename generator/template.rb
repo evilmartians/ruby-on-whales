@@ -30,7 +30,7 @@ todos = [
 ]
 
 if database_url
-  todos << "  - Don't forget to add `url: <%= ENV[\"DATABASE_URL\"]` to your database.yml"
+  todos << "  - Don't forget to add `url: \<\%= ENV[\"DATABASE_URL\"] \%\>` to your database.yml"
 end
 
 if todos.any?

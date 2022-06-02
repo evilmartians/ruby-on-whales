@@ -54,7 +54,7 @@ dip VERSION=20100905201547 rails db:migrate:down
 dip runner
 
 # execute an arbitrary command via Bash
-dip bash ls -al tmp/cache
+dip bash -c 'ls -al tmp/cache'
 
 # Additional commands
 
