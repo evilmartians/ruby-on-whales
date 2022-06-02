@@ -60,7 +60,7 @@ interaction:
   psql:
     description: Run Postgres psql console
     service: postgres
-    default_args: anycasts_dev
+    default_args: example_demo_development
     command: psql -h postgres -U postgres
 
   'redis-cli':
@@ -69,6 +69,9 @@ interaction:
     command: redis-cli -h redis
 
 provision:
-  - dip compose down --volumes
+  # We need the `|| true` part because some docker-compose versions
+  # cannot down a non-existent container without an error,
+  # see https://github.com/docker/compose/issues/9426
+  - dip compose down --volumes || true
   - dip compose up -d postgres redis
   - dip bash -c bin/setup

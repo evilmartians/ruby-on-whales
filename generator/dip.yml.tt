@@ -85,6 +85,9 @@ interaction:
 <% end %>
 
 provision:
+  # We need the `|| true` part because some docker-compose versions
+  # cannot down a non-existent container without an error,
+  # see https://github.com/docker/compose/issues/9426
   - dip compose down --volumes || true
 <% if postgres_version %>
   - dip compose up -d postgres
