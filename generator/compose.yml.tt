@@ -59,7 +59,7 @@ x-backend: &backend
     MALLOC_ARENA_MAX: 2
     WEB_CONCURRENCY: ${WEB_CONCURRENCY:-1}
     BOOTSNAP_CACHE_DIR: /usr/local/bundle/_bootsnap
-    XDG_DATA_HOME: /app/tmp/caches
+    XDG_DATA_HOME: /app/tmp/cache
 <% if yarn_version %>
     YARN_CACHE_FOLDER: /app/node_modules/.yarn-cache
 <% end %>
