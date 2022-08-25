@@ -7,7 +7,7 @@ begin
   if File.file?("Gemfile.lock")
     bundler_parser = Bundler::LockfileParser.new(Bundler.read_file("Gemfile.lock"))
     gemspecs =  Hash[bundler_parser.specs.map { |spec| [spec.name, spec.version] }]
-    maybe_ruby_version = bundler_parser.ruby_version.match(/ruby (\d+\.\d+\.\d+)./i)&.[](1)
+    maybe_ruby_version = bundler_parser.ruby_version&.match(/ruby (\d+\.\d+\.\d+)./i)&.[](1)
   end
 
   begin
