@@ -1,0 +1,48 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  rspec_docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: crazy-max/ghaction-github-runtime@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
+      - name: Build docker
+        uses: docker/build-push-action@v2
+        with:
+          context: .dockerdev
+          push: false
+          cache-from: type=gha,scope=docker
+          cache-to: type=gha,scope=docker
+          load: true
+          tags: example-demo-dev:1.0.0
+          build-args: |
+            RUBY_VERSION=3.1.0
+            PG_MAJOR=14
+            NODE_MAJOR=16
+            YARN_VERSION=1.22.17
+            BUNDLER_VERSION=2.3.6
+      # Need for local gems installation
+      - name: Setup Ruby with Bundler
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler: 2.3.6
+      - name: Install dip
+        run: gem install dip
+      - name: Bundle deps
+        run: dip bundle
+      - name: Run specs
+        run: |
+          dip rails db:test:prepare
+          dip rspec
+          dip rspec system
