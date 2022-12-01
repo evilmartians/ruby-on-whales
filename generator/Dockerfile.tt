@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG RUBY_VERSION
 ARG DISTRO_NAME=bullseye
 
@@ -6,43 +8,42 @@ FROM ruby:$RUBY_VERSION-slim-$DISTRO_NAME
 ARG DISTRO_NAME
 
 # Common dependencies
-RUN apt-get update -qq \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  --mount=type=tmpfs,target=/var/log \
+  rm -f /etc/apt/apt.conf.d/docker-clean; \
+  echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache; \
+  apt-get update -qq && \
+  DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
     build-essential \
     gnupg2 \
     curl \
     less \
-    git \
-  && apt-get clean \
-  && rm -rf /var/cache/apt/archives/* \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-  && truncate -s 0 /var/log/*log
+    git
 <% if postgres_version %>
 
 ARG PG_MAJOR
 RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/postgres-archive-keyring.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/postgres-archive-keyring.gpg] https://apt.postgresql.org/pub/repos/apt/" \
     $DISTRO_NAME-pgdg main $PG_MAJOR | tee /etc/apt/sources.list.d/postgres.list > /dev/null
-RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  --mount=type=tmpfs,target=/var/log \
+  apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
   DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
     libpq-dev \
-    postgresql-client-$PG_MAJOR \
-    && apt-get clean \
-    && rm -rf /var/cache/apt/archives/* \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && truncate -s 0 /var/log/*log
+    postgresql-client-$PG_MAJOR
 <% end %>
 <% if node_version %>
 
 ARG NODE_MAJOR
-RUN curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash -
-RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  --mount=type=tmpfs,target=/var/log \
+  curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash - && \
   DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-    nodejs \
-    && apt-get clean \
-    && rm -rf /var/cache/apt/archives/* \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && truncate -s 0 /var/log/*log
+    nodejs
 <% if yarn_version == 'latest' %>
 
 RUN npm install -g yarn
@@ -55,14 +56,12 @@ RUN npm install -g yarn@$YARN_VERSION
 
 # Application dependencies
 # We use an external Aptfile for this, stay tuned
-COPY Aptfile /tmp/Aptfile
-RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get -yq dist-upgrade && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-    $(grep -Ev '^\s*#' /tmp/Aptfile | xargs) \
-    && apt-get clean \
-    && rm -rf /var/cache/apt/archives/* \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && truncate -s 0 /var/log/*log
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=tmpfs,target=/var/log \
+    --mount=type=bind,source=Aptfile,target=/tmp/Aptfile \
+    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+      $(grep -Ev '^\s*#' /tmp/Aptfile | xargs)
 
 # Configure bundler
 ENV LANG=C.UTF-8 \
