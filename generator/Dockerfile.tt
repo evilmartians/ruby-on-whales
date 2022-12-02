@@ -8,6 +8,7 @@ FROM ruby:$RUBY_VERSION-slim-$DISTRO_NAME
 ARG DISTRO_NAME
 
 # Common dependencies
+# Using --mount to speed up build with caching, see https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#run---mount
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   --mount=type=tmpfs,target=/var/log \
