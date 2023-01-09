@@ -115,9 +115,9 @@ services:
     volumes:
       - .psqlrc:/root/.psqlrc:ro
       - postgres:/var/lib/postgresql/data
-      - history:/user/local/hist
+      - history:/usr/local/hist
     environment:
-      PSQL_HISTFILE: /user/local/hist/.psql_history
+      PSQL_HISTFILE: /usr/local/hist/.psql_history
       POSTGRES_PASSWORD: postgres
     ports:
       - 5432
