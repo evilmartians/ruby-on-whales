@@ -19,6 +19,12 @@ We also provide an interactive generator for Rails apps to quickly setup a docke
 bundle exec rails app:template LOCATION='https://railsbytes.com/script/z5OsoB'
 ```
 
+You can also run it via [Ruby Bytes][] (so you can dockerize a Rails app without installing it on your host machine):
+
+```sh
+rbytes install https://railsbytes.com/script/z5OsoB
+```
+
 ## See also
 
 - [Terraforming Rails](https://github.com/evilmartians/terraforming-rails)
@@ -28,3 +34,4 @@ bundle exec rails app:template LOCATION='https://railsbytes.com/script/z5OsoB'
 The code is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
 [the-post]: https://evilmartians.com/chronicles/ruby-on-whales-docker-for-ruby-rails-development
+[Ruby Bytes]: https://github.com/palkan/rbytes

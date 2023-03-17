@@ -16,12 +16,12 @@ class DockerfileTest < GeneratorTestCase
 
     assert_file_contains(
       "Dockerfile",
-      "RUN curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+      "curl -sSL https://www.postgresql.org/media/keys/ACCC4CF8.asc"
     )
 
     assert_file_contains(
       "Dockerfile",
-      "RUN curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x"
+      "curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x"
     )
 
     assert_file_contains(

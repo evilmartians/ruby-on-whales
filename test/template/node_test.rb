@@ -11,8 +11,7 @@ class NodeTest < GeneratorTestCase
   )
 
   def test_default_node_versions
-    run_generator do |input, output|
-      input.puts "\r"
+    run_generator(input: ["\r"]) do |output|
       assert_line_printed(
         output,
         "Which Node version do you want to install? (Press ENTER to use 16, type 'n/no' to skip installing Node)"
@@ -36,8 +35,7 @@ class NodeTest < GeneratorTestCase
   end
 
   def test_custom_node_versions
-    run_generator do |input, output|
-      input.puts "14\r1.13.0"
+    run_generator(input: ["14","1.13.0"]) do |output|
       assert_line_printed(
         output,
         "Which Node version do you want to install? (Press ENTER to use 16, type 'n/no' to skip installing Node)"
@@ -61,8 +59,7 @@ class NodeTest < GeneratorTestCase
   end
 
   def test_skip_node
-    run_generator do |input, output|
-      input.puts "n"
+    run_generator(input: ["n"]) do |output|
       assert_line_printed(
         output,
         "Which Node version do you want to install? (Press ENTER to use 16, type 'n/no' to skip installing Node)"

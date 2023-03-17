@@ -9,7 +9,7 @@ class AppDetailsTest < GeneratorTestCase
   )
 
   def test_app_name_from_application_module
-    run_generator do |input, output|
+    run_generator do |output|
       assert_line_printed(
         output,
         "APP_NAME=dummy"

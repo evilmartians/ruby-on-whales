@@ -9,8 +9,7 @@ class DatabaseTest < GeneratorTestCase
   )
 
   def test_with_supported_database
-    run_generator do |input, output|
-      input.puts
+    run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
         "Which database adapter do you use? (Press ENTER to use postgresql)"
@@ -23,10 +22,11 @@ class DatabaseTest < GeneratorTestCase
   end
 
   def test_with_unsupported_database
-    FileUtils.rm(File.join(rails_root, "config", "database.yml"))
+    prepare_dummy do
+      FileUtils.rm(File.join("config", "database.yml"))
+    end
 
-    run_generator do |input, output|
-      input.puts "elenadb"
+    run_generator(input: ["elenadb"]) do |output|
       assert_line_printed(
         output,
         "Which database adapter do you use?"

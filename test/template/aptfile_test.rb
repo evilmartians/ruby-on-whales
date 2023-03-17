@@ -10,8 +10,7 @@ class AptfileTest < GeneratorTestCase
   )
 
   def test_when_no_known_dependencies_present
-    run_generator do |input, output|
-      input.puts
+    run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
         "Which system package do you want to install? (Press ENTER to continue)"
@@ -25,8 +24,7 @@ class AptfileTest < GeneratorTestCase
   end
 
   def test_with_user_provided_deps
-    run_generator do |input, output|
-      input.puts "ntp\r"
+    run_generator(input: ["ntp"]) do |output|
       assert_line_printed(
         output,
         "Which system package do you want to install? (Press ENTER to continue)"

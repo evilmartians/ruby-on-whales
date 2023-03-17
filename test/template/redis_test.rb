@@ -14,8 +14,7 @@ class RedisTest < GeneratorTestCase
   )
 
   def test_default_redis_version
-    run_generator do |input, output|
-      input.puts
+    run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
         "Which Redis version do you want to use? (Press ENTER to use 6.0)"
@@ -29,8 +28,7 @@ class RedisTest < GeneratorTestCase
   end
 
   def test_custom_redis_version
-    run_generator do |input, output|
-      input.puts "4.0"
+    run_generator(input: ["4.0"]) do |output|
       assert_line_printed(
         output,
         "Which Redis version do you want to use?"
@@ -55,7 +53,7 @@ class RedisNotFoundTest < GeneratorTestCase
   )
 
   def test_no_redis_version
-    run_generator do |input, output|
+    run_generator do |output|
       assert_line_printed(
         output,
         "REDIS_VERSION=nope"
