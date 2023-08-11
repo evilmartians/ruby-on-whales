@@ -3,7 +3,7 @@
 postgres_version = nil
 postgres_base_image = "postgres"
 
-DEFAULT_POSTGRES_VERSION = "14"
+DEFAULT_POSTGRES_VERSION = "15"
 POSTGRES_ADAPTERS = %w[postgres postgresql postgis]
 
 if POSTGRES_ADAPTERS.include?(database_adapter)

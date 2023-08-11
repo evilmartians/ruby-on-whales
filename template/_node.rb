@@ -4,11 +4,11 @@
 node_version = nil
 yarn_version = nil
 
-DEFAULT_NODE_VERSION = "16"
+DEFAULT_NODE_VERSION = "18"
 
 begin
   selected_node_version = ask(
-    "Which Node version do you want to install? (Press ENTER to use 16, type 'n/no' to skip installing Node)"
+    "Which Node version do you want to install? (Press ENTER to use #{DEFAULT_NODE_VERSION}, type 'n/no' to skip installing Node)"
   ) || ""
 
   unless selected_node_version =~ /^\s*no?\s*$/
