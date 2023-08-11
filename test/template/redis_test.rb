@@ -17,12 +17,12 @@ class RedisTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which Redis version do you want to use? (Press ENTER to use 6.0)"
+        "Which Redis version do you want to use? (Press ENTER to use 7.0)"
       )
 
       assert_line_printed(
         output,
-        "REDIS_VERSION=6.0"
+        "REDIS_VERSION=7.0"
       )
     end
   end

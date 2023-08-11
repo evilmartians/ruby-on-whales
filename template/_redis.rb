@@ -2,7 +2,7 @@
 
 redis_version = nil
 
-DEFAULT_REDIS_VERSION = "6.0"
+DEFAULT_REDIS_VERSION = "7.0"
 
 begin
   if gemspecs.key?("redis")
