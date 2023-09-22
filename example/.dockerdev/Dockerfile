@@ -37,13 +37,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 ARG NODE_MAJOR
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-  --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  --mount=type=tmpfs,target=/var/log \
-  curl -sL https://deb.nodesource.com/setup_$NODE_MAJOR.x | bash - && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-    nodejs
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    --mount=type=tmpfs,target=/var/log \
+    apt-get update && \
+    apt-get install -y curl software-properties-common && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
+    echo "deb https://deb.nodesource.com/node_${NODE_MAJOR}.x $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends nodejs
 
-ARG YARN_VERSION
+ARG YARN_VERSION=latest
 RUN npm install -g yarn@$YARN_VERSION
 
 # Application dependencies
