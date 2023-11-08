@@ -80,4 +80,4 @@ WORKDIR /app
 # Document that we're going to expose port 3000
 EXPOSE 3000
 # Use Bash as the default command
-CMD ["/usr/bin/bash"]
+CMD ["/bin/bash"]
