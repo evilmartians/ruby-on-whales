@@ -19,7 +19,7 @@ class NodeTest < GeneratorTestCase
 
       assert_line_printed(
         output,
-        "Which Yarn version do you want to install? (Press ENTER to install the latest one)"
+        "Which Yarn version do you want to install? (Press ENTER to install the latest one, type 'n/no' to skip installing Yarn)"
       )
 
       assert_line_printed(
@@ -43,7 +43,7 @@ class NodeTest < GeneratorTestCase
 
       assert_line_printed(
         output,
-        "Which Yarn version do you want to install? (Press ENTER to install the latest one)"
+        "Which Yarn version do you want to install? (Press ENTER to install the latest one, type 'n/no' to skip installing Yarn)"
       )
 
       assert_line_printed(
@@ -67,6 +67,23 @@ class NodeTest < GeneratorTestCase
       assert_line_printed(
         output,
         "NODE_VERSION=nope"
+      )
+    end
+  end
+
+  def test_skip_yarn
+    run_generator(input: ["\r", "n"]) do |output|
+      assert_line_printed(
+        output,
+        "Which Node version do you want to install? (Press ENTER to use 18, type 'n/no' to skip installing Node)"
+      )
+      assert_line_printed(
+        output,
+        "NODE_VERSION=18"
+      )
+      assert_line_printed(
+        output,
+        "YARN_VERSION=false"
       )
     end
   end

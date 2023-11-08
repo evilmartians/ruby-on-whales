@@ -48,7 +48,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 <% if yarn_version == 'latest' %>
 
 RUN npm install -g yarn
-<% else %>
+<% elsif yarn_version %>
 
 ARG YARN_VERSION
 RUN npm install -g yarn@$YARN_VERSION

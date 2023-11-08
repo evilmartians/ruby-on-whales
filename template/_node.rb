@@ -14,7 +14,8 @@ begin
   unless selected_node_version =~ /^\s*no?\s*$/
     node_version = selected_node_version.empty? ? DEFAULT_NODE_VERSION : selected_node_version
 
-    yarn_version = ask("Which Yarn version do you want to install? (Press ENTER to install the latest one)") || ""
+    yarn_version = ask("Which Yarn version do you want to install? (Press ENTER to install the latest one, type 'n/no' to skip installing Yarn)") || ""
     yarn_version = "latest" if yarn_version.empty?
+    yarn_version = false if yarn_version =~ /^\s*no?\s*$/
   end
 end
