@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG RUBY_VERSION
-ARG DISTRO_NAME=bullseye
+ARG DISTRO_NAME=bookworm
 
 FROM ruby:$RUBY_VERSION-slim-$DISTRO_NAME
 
