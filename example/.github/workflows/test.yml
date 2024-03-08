@@ -27,7 +27,7 @@ jobs:
           load: true
           tags: example-demo-dev:1.0.0
           build-args: |
-            RUBY_VERSION=3.1.0
+            RUBY_VERSION=3.3.0
             PG_MAJOR=14
             NODE_MAJOR=16
             YARN_VERSION=1.22.17
