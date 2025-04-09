@@ -8,8 +8,10 @@ class DipTest < GeneratorTestCase
 
     gemspecs = {
       "redis" => Gem::Version.new("6.0.0"),
-      "rspec" => Gem::Version.new("4.0.0")
+      "rspec" => Gem::Version.new("4.0.0"),
+      "ruby-lsp" => Gem::Version.new("0.2.20")
     }
+
     postgres_version = "13.2"
     yarn_version = "1.22"
     redis_version = "5.0"
@@ -52,6 +54,17 @@ CODE
 <<-CODE
   'redis-cli':
     description: Run Redis console
+CODE
+    )
+
+    assert_file_contains(
+      "dip.yml",
+<<-CODE
+  ruby-lsp:
+    description: Run Ruby LSP
+    service: ruby-lsp
+    command: bundle exec ruby-lsp
+    compose_run_options: [ service-ports, no-deps ]
 CODE
     )
   end

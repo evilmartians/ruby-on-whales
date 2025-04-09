@@ -55,6 +55,12 @@ interaction:
     command: yarn
     compose_run_options: [ no-deps ]
 
+  ruby-lsp:
+    description: Run Ruby LSP
+    service: ruby-lsp
+    command: bundle exec ruby-lsp
+    compose_run_options: [ service-ports, no-deps ]
+
   psql:
     description: Run Postgres psql console
     service: postgres

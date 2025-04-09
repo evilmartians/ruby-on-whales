@@ -2,8 +2,8 @@ version: '7.1'
 
 # Define default environment variables to pass
 # to Docker Compose
-environment:
-  RAILS_ENV: development
+# environment:
+#  RAILS_ENV: development
 
 compose:
   files:
@@ -59,6 +59,14 @@ interaction:
         command: bundle exec rails test
         environment:
           RAILS_ENV: test
+<% end %>
+<% if gemspecs.key?("ruby-lsp") %>
+
+  ruby-lsp:
+    description: Run Ruby LSP
+    service: ruby-lsp
+    command: bundle exec ruby-lsp
+    compose_run_options: [ service-ports, no-deps ]
 <% end %>
 <% if yarn_version %>
 
