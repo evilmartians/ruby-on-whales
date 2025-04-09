@@ -62,7 +62,7 @@ CODE
 <<-CODE
   ruby-lsp:
     description: Run Ruby LSP
-    service: ruby-lsp
+    service: rails
     command: bundle exec ruby-lsp
     compose_run_options: [ service-ports, no-deps ]
 CODE

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# This binary can be used to run Ruby LSP within a Docker container.
+#
+# You must configure your editor to do that.
+#
+# Zed example (`.zed/settings.json`):
+#
+# {
+#   "languages": {
+#     "Ruby": {
+#       "language_servers": ["ruby-lsp", "!solargraph", "!rubocop", "..."]
+#     }
+#   },
+#   "lsp": {
+#     "ruby-lsp": {
+#       "binary": {
+#         "path": ".dockerdev/ruby-lsp",
+#         "arguments": ["stdio"]
+#       }
+#     }
+#   }
+# }
+#
+
+cd $(dirname $0)/..
+
+dip ruby-lsp $@

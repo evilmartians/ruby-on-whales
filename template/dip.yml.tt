@@ -64,8 +64,16 @@ interaction:
 
   ruby-lsp:
     description: Run Ruby LSP
-    service: ruby-lsp
+    service: rails
     command: bundle exec ruby-lsp
+    compose_run_options: [ service-ports, no-deps ]
+<% end %>
+<% if gemspecs.key?("solargraph") %>
+
+  solargraph:
+    description: Run Solargraph
+    service: rails
+    command: bundle exec solargraph
     compose_run_options: [ service-ports, no-deps ]
 <% end %>
 <% if yarn_version %>

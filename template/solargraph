@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# This binary can be used to run Solargraph within a Docker container.
+#
+# You must configure your editor to do that.
+#
+# Zed example (`.zed/settings.json`):
+#
+# {
+#   "lsp": {
+#     "solargraph": {
+#       "binary": {
+#         "path": ".dockerdev/solargraph",
+#         "arguments": ["stdio"]
+#       }
+#     }
+#   }
+# }
+#
+
+cd $(dirname $0)/..
+
+dip solargraph $@
