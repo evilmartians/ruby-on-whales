@@ -91,16 +91,34 @@ interaction:
     service: redis
     command: redis-cli -h redis
 <% end %>
+<% if gemspecs.include?("sidekiq-pro") %>
+
+  configure_bundler_credentials:
+    command: |
+      (test -f .bundle/config && cat .bundle/config | \
+        grep BUNDLE_ENTERPRISE__CONTRIBSYS__COM > /dev/null) ||
+      \
+        (echo "Sidekiq ent credentials ("user:pass"): "; read -r creds; dip bundle config --local enterprise.contribsys.com $creds)
+<% end %>
 
 provision:
-  # We need the `|| true` part because some docker-compose versions
-  # cannot down a non-existent container without an error,
-  # see https://github.com/docker/compose/issues/9426
-  - dip compose down --volumes || true
+  - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
+<% if gemspecs.include?("sidekiq-pro") %>
+  - dip configure_bundler_credentials
+<% end %>
 <% if postgres_version %>
   - dip compose up -d postgres
 <% end %>
 <% if redis_version %>
   - dip compose up -d redis
 <% end %>
-  - dip bash -c bin/setup
+  - dip bundle check || dip bundle install
+  - dip rails db:prepare
+  - dip rails db:test:prepare
+<% if yarn_version %>
+  - dip yarn
+<% end %>
+<% if gemspecs.include?("cssbundling-rails") %>
+  - dip yarn build:css
+<% end %>
+  - echo "🚀 Ready to rock! Run 'dip rails s' to start a Rails web server or 'dip <% gemspecs.key?("rspec") ? "rspec" : "rails test" %>' to run tests."

@@ -123,3 +123,44 @@ CODE
     )
   end
 end
+
+class DipSidekiqProTest < GeneratorTestCase
+  template <<~CODE
+    DOCKER_DEV_ROOT = ".dockerdev_test"
+
+    gemspecs = {
+      "sidekiq-pro" =>  Gem::Version.new("7.0.0"),
+    }
+    postgres_version = nil
+    yarn_version = nil
+    redis_version = "7.0.0"
+    app_name = "app-name"
+
+    file "dip.yml", <%= code("dip.yml") %>
+  CODE
+
+  def test_sidekiq_pro_dip_configuration
+    run_generator
+
+    assert_file_contains(
+      "dip.yml",
+<<-'CODE'
+  configure_bundler_credentials:
+    command: |
+      (test -f .bundle/config && cat .bundle/config | \
+        grep BUNDLE_ENTERPRISE__CONTRIBSYS__COM > /dev/null) ||
+      \
+        (echo "Sidekiq ent credentials ("user:pass"): "; read -r creds; dip bundle config --local enterprise.contribsys.com $creds)
+CODE
+    )
+
+    assert_file_contains(
+      "dip.yml",
+<<-CODE
+provision:
+  - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
+  - dip configure_bundler_credentials
+CODE
+    )
+  end
+end
