@@ -87,6 +87,67 @@ CODE
   end
 end
 
+class ComposeViteTest < GeneratorTestCase
+  template <<~CODE
+    ruby_version = "3.4.1"
+    gemspecs = {
+      "vite_ruby" => Gem::Version.new("3.0.19")
+    }
+    postgres_version = nil
+    database_url = nil
+    yarn_version = nil
+    redis_version = nil
+    node_version = "20"
+    app_name = "app-name"
+
+    file "compose.yml", <%= code("compose.yml") %>
+  CODE
+
+  def test_compose_with_vite
+    run_generator
+
+    assert_file_contains(
+      "compose.yml",
+<<-CODE
+  build:
+    context: .
+    args:
+      RUBY_VERSION: '3.4.1'
+      NODE_MAJOR: '20'
+  image: app-name-dev:1.0.0
+CODE
+    )
+
+    assert_file_contains(
+      "compose.yml",
+<<-CODE
+  vite:
+    <<: *backend
+    command: ./bin/vite dev
+    volumes:
+      - ${PWD}:/${PWD}:cached
+      - bundle:/usr/local/bundle
+      - node_modules:/app/node_modules
+      - vite_dev:/app/public/vite-dev
+      - vite_test:/app/public/vite-test
+CODE
+    )
+
+    assert_file_contains(
+      "compose.yml",
+<<-CODE
+volumes:
+  bundle:
+  node_modules:
+  history:
+  rails_cache:
+  vite_dev:
+  vite_test:
+CODE
+    )
+  end
+end
+
 class ComposeMinimalTest < GeneratorTestCase
   template <<~CODE
     ruby_version = "3.0"
