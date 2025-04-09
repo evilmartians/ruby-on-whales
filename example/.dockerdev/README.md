@@ -71,16 +71,3 @@ dip rspec spec/path/to/single/test.rb:23
 # shutdown all containers
 dip down
 ```
-
-### Development flow
-
-Another way is to run `dip <smth>` for every interaction. If you prefer this way and use ZSH, you can reduce the typing
-by integrating `dip` into your session:
-
-```sh
-$ dip console | source /dev/stdin
-# no `dip` prefix is required anymore!
-$ rails c
-Loading development environment (Rails 7.0.1)
-pry>
-```

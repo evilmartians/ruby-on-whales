@@ -2,8 +2,8 @@ version: '7.1'
 
 # Define default environment variables to pass
 # to Docker Compose
-environment:
-  RAILS_ENV: development
+# environment:
+#   RAILS_ENV: development
 
 compose:
   files:
@@ -32,12 +32,10 @@ interaction:
     command: bundle
     compose_run_options: [ no-deps ]
 
-  # A shortcut to run RSpec (which overrides the RAILS_ENV)
+  # A shortcut to run RSpec
   rspec:
     description: Run RSpec commands
     service: rails
-    environment:
-      RAILS_ENV: test
     command: bundle exec rspec
 
   rails:
@@ -69,9 +67,11 @@ interaction:
     command: redis-cli -h redis
 
 provision:
-  # We need the `|| true` part because some docker-compose versions
-  # cannot down a non-existent container without an error,
-  # see https://github.com/docker/compose/issues/9426
-  - dip compose down --volumes || true
+  - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
   - dip compose up -d postgres redis
-  - dip bash -c bin/setup
+  - dip bundle check || dip bundle install
+  - dip rails db:prepare
+  - dip rails db:test:prepare
+  - dip yarn
+  - dip yarn build:css
+  - echo "🚀 Ready to rock!"
