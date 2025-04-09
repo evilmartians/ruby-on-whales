@@ -4,7 +4,7 @@ database_adapter = nil
 database_url = nil
 
 begin
-  supported_adapters = %w(postgresql postgis postgres)
+  supported_adapters = %w(postgresql postgis postgres mysql2 trilogy)
 
   config_path = "config/database.yml"
 

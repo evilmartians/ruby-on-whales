@@ -9,6 +9,7 @@ DOCKER_DEV_ROOT = ".dockerdev"
 <%= include "aptfile" %>
 <%= include "database" %>
 <%= include "postgres" %>
+<%= include "mysql" %>
 <%= include "node" %>
 <%= include "redis" %>
 

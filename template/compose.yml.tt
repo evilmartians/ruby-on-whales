@@ -56,7 +56,7 @@ x-backend: &backend
     REDIS_URL: redis://redis:6379/
 <% end %>
 <% if database_url %>
-    DATABASE_URL: postgres://postgres:postgres@postgres:5432
+    DATABASE_URL: <%= database_url %>
 <% end %>
 <% if gemspecs.key?("webpacker") %>
     WEBPACKER_DEV_SERVER_HOST: webpacker
@@ -78,6 +78,10 @@ x-backend: &backend
   depends_on:
 <% if postgres_version %>
     postgres:
+      condition: service_healthy
+<% end %>
+<% if mysql_version %>
+    mysql:
       condition: service_healthy
 <% end %>
 <% if redis_version %>
@@ -133,6 +137,21 @@ services:
       - 5432
     healthcheck:
       test: pg_isready -U postgres -h 127.0.0.1
+      interval: 5s
+<% end %>
+<% if mysql_version %>
+  mysql:
+    image: mysql:<%= mysql_version %>
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - history:/usr/local/hist
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root
       interval: 5s
 <% end %>
 <% if redis_version %>
@@ -194,6 +213,9 @@ volumes:
   rails_cache:
 <% if postgres_version %>
   postgres:
+<% end %>
+<% if mysql_version %>
+  mysql_data:
 <% end %>
 <% if redis_version %>
   redis:

@@ -10,6 +10,7 @@ class ComposeTest < GeneratorTestCase
       "sidekiq" => Gem::Version.new("6.0.0")
     }
     postgres_version = "13.2"
+    mysql_version = nil
     database_url = "postgresql://postgres:postgres@postgres:5432"
     node_version = "14.2"
     yarn_version = "1.22.17"
@@ -87,13 +88,14 @@ CODE
   end
 end
 
-class ComposeViteTest < GeneratorTestCase
+class ComposeViteMysqlTest < GeneratorTestCase
   template <<~CODE
     ruby_version = "3.4.1"
     gemspecs = {
       "vite_ruby" => Gem::Version.new("3.0.19")
     }
     postgres_version = nil
+    mysql_version = 8.0
     database_url = nil
     yarn_version = nil
     redis_version = nil
@@ -103,7 +105,7 @@ class ComposeViteTest < GeneratorTestCase
     file "compose.yml", <%= code("compose.yml") %>
   CODE
 
-  def test_compose_with_vite
+  def test_compose_with_vite_and_mysql
     run_generator
 
     assert_file_contains(
@@ -115,6 +117,25 @@ class ComposeViteTest < GeneratorTestCase
       RUBY_VERSION: '3.4.1'
       NODE_MAJOR: '20'
   image: app-name-dev:1.0.0
+CODE
+    )
+
+    assert_file_contains(
+      "compose.yml",
+<<-CODE
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - history:/usr/local/hist
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root
+      interval: 5s
 CODE
     )
 
@@ -141,6 +162,7 @@ volumes:
   node_modules:
   history:
   rails_cache:
+  mysql_data:
   vite_dev:
   vite_test:
 CODE
@@ -154,6 +176,7 @@ class ComposeMinimalTest < GeneratorTestCase
     gemspecs = {}
     postgres_version = nil
     database_url = nil
+    mysql_version = nil
     node_version = nil
     yarn_version = nil
     redis_version = nil
