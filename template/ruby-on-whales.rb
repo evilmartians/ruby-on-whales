@@ -11,8 +11,8 @@ DOCKER_DEV_ROOT = ".dockerdev"
 <%= include "mysql" %>
 <%= include "node" %>
 <%= include "redis" %>
-<%= include "ai" %>
 <%= include "aptfile" %>
+<%= include "ai" %>
 
 # Generate configuration
 aptfile = File.join(DOCKER_DEV_ROOT, "Aptfile")
@@ -35,21 +35,17 @@ end
 
 file "#{DOCKER_DEV_ROOT}/README.md", <%= code("README.md") %>
 
-todos = [
-  "📝  Important things to take care of:",
-  "  - Make sure you have `ENV[\"RAILS_ENV\"] = \"test\"` (not `ENV[\"RAILS_ENV\"] ||= \"test\"`) in your test helper."
-]
+todos = []
 
 if database_url
   todos << "  - Don't forget to add `url: \<\%= ENV[\"DATABASE_URL\"] \%\>` to your database.yml"
 end
 
 if todos.any?
+  todos.unshift("📝  Important things to take care of:")
   say_status(:warn, todos.join("\n"))
 end
 
 <%= include "claude_finalize" %>
-
-
 
 say_status :info, "✅  You're ready to sail! Check out #{DOCKER_DEV_ROOT}/README.md or run `dip provision && dip up web` 🚀"

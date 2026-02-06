@@ -5,6 +5,7 @@ require "test_helper"
 class DatabaseTest < GeneratorTestCase
   template %q(
     <%= include "database" %>
+    gemspecs = {}
     puts "DATABASE=#{database_adapter ? database_adapter : 'nope'}"
   )
 

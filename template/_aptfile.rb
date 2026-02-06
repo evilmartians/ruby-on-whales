@@ -7,8 +7,17 @@ apt_deps = [
 
 begin
   deps = []
+
+  if %[sqlite sqlite3].include?(database_adapter)
+    deps << "sqlite3"
+  end
+
+  if gemspecs.key?("ruby-vips")
+    deps << "libvips"
+  end
+
   loop do
-    dep = ask("Which system package do you want to install? (Press ENTER to continue)") || ""
+    dep = ask("Would like to install additional system packages?#{deps.any? ? " (We have: #{deps.join(", ")})" : ""} (Type a name or press ENTER to continue)") || ""
     break if dep.empty?
     deps << dep
   end

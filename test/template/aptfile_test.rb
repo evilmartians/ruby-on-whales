@@ -5,6 +5,8 @@ require "test_helper"
 class AptfileTest < GeneratorTestCase
   template %q(
     DOCKER_DEV_ROOT = ".dockerdev_test"
+    database_adapter = "pg"
+    gemspecs = {}
 
     <%= include "aptfile" %>
 
@@ -16,7 +18,7 @@ class AptfileTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which system package do you want to install? (Press ENTER to continue)"
+        "Would like to install additional system packages? (Type a name or press ENTER to continue)"
       )
     end
 
@@ -30,11 +32,11 @@ class AptfileTest < GeneratorTestCase
     run_generator(input: ["ntp"]) do |output|
       assert_line_printed(
         output,
-        "Which system package do you want to install? (Press ENTER to continue)"
+        "Would like to install additional system packages? (Type a name or press ENTER to continue)"
       )
       assert_line_printed(
         output,
-        "Which system package do you want to install? (Press ENTER to continue)"
+        "Would like to install additional system packages? (We have: ntp) (Type a name or press ENTER to continue)"
       )
     end
 

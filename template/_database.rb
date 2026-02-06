@@ -4,7 +4,7 @@ database_adapter = nil
 database_url = nil
 
 begin
-  supported_adapters = %w(postgresql postgis postgres mysql2 trilogy)
+  supported_adapters = %w(postgresql postgis postgres mysql2 trilogy sqlite3 sqlite)
 
   config_path = "config/database.yml"
 
@@ -19,6 +19,17 @@ begin
 
       conf.dig("development", "adapter")
     end
+  end
+
+  # check gems if database.yml is non-standard
+  unless maybe_database_adapter
+    maybe_database_adapter =
+      case
+      when gemspecs.include?("sqlite3") then "sqlite3"
+      when gemspecs.include?("pg") then "postgresql"
+      when gemspecs.include?("trilogy") then "trilogy"
+      when gemspecs.include?("mysql2") then "mysql2"
+      end
   end
 
   selected_database_adapter =

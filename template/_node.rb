@@ -4,7 +4,7 @@
 node_version = nil
 yarn_version = nil
 
-DEFAULT_NODE_VERSION = "18"
+DEFAULT_NODE_VERSION = "22"
 
 begin
   selected_node_version = ask(

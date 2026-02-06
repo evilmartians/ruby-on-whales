@@ -34,6 +34,10 @@ if claude_available
          - If there's a docs/ folder, consider adding a Docker setup guide
          - Otherwise, ensure #{DOCKER_DEV_ROOT}/README.md is comprehensive
 
+      IMPORTANT: Provide the user with a TODO list of changes before applying them. Explain every change and why it's needed (based on the materials provided, use links if necessary). Allow the user to pick only ones to implement right now and postpone others (ask if needed to document somewhere).
+
+      Exit the session after done with configuring the Docker setup (so the installer can get control back).
+
       ## References
 
       For more context, see these guides:
@@ -49,7 +53,6 @@ if claude_available
     pid = fork do
       exec(
         "claude",
-        "--allowedTools", "Read", "Edit", "Write", "MultiEdit", "Glob", "Grep", "Bash(git *)",
         prompt
       )
     end

@@ -10,6 +10,10 @@ begin
     maybe_ruby_version = bundler_parser.ruby_version&.match(/ruby (\d+\.\d+\.\d+)./i)&.[](1)
   end
 
+  if File.file?(".ruby-version")
+    maybe_ruby_version = File.read(".ruby-version").strip
+  end
+
   begin
     if maybe_ruby_version
       ruby_version = ask("Which Ruby version would you like to use? (Press ENTER to use #{maybe_ruby_version})") || ""
