@@ -7,6 +7,7 @@ class DockerfileTest < GeneratorTestCase
     postgres_version = "13"
     node_version = "14"
     yarn_version = "latest"
+    claude = true
 
     file "Dockerfile", <%= code("Dockerfile") %>
   CODE
@@ -28,6 +29,11 @@ class DockerfileTest < GeneratorTestCase
       "Dockerfile",
       "RUN npm install -g yarn"
     )
+
+    assert_file_contains(
+      "Dockerfile",
+      "RUN curl -fsSL https://claude.ai/install.sh | bash"
+    )
   end
 end
 
@@ -36,6 +42,7 @@ class DockerfileMinimalTest < GeneratorTestCase
     postgres_version = nil
     node_version = nil
     yarn_version = nil
+    claude = false
 
     file "Dockerfile", <%= code("Dockerfile") %>
   CODE

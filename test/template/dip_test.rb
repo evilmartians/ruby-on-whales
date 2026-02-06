@@ -16,6 +16,7 @@ class DipTest < GeneratorTestCase
     yarn_version = "1.22"
     redis_version = "5.0"
     app_name = "app-name"
+    claude = true
 
     file "dip.yml", <%= code("dip.yml") %>
   CODE
@@ -67,6 +68,16 @@ CODE
     compose_run_options: [ service-ports, no-deps ]
 CODE
     )
+
+    assert_file_contains(
+      "dip.yml",
+<<-CODE
+  claude:
+    description: Run Claude CLI
+    service: rails
+    command: claude --dangerously-skip-permissions
+CODE
+    )
   end
 end
 
@@ -79,6 +90,7 @@ class DipMinimalTest < GeneratorTestCase
     yarn_version = nil
     redis_version = nil
     app_name = "app-name"
+    claude = false
 
     file "dip.yml", <%= code("dip.yml") %>
   CODE
@@ -121,6 +133,14 @@ CODE
     description: Run Redis console
 CODE
     )
+
+    refute_file_contains(
+      "dip.yml",
+<<-CODE
+  claude:
+    description: Run Claude CLI
+CODE
+    )
   end
 end
 
@@ -135,6 +155,7 @@ class DipSidekiqProTest < GeneratorTestCase
     yarn_version = nil
     redis_version = "7.0.0"
     app_name = "app-name"
+    claude = false
 
     file "dip.yml", <%= code("dip.yml") %>
   CODE

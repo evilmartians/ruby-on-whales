@@ -58,6 +58,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
       $(grep -Ev '^\s*#' /tmp/Aptfile | xargs)
 
+# Install Claude CLI
+RUN curl -fsSL https://claude.ai/install.sh | bash
+ENV PATH /root/.local/bin:$PATH
+ENV IS_SANDBOX 1
+
 # Configure bundler
 ENV LANG=C.UTF-8 \
   BUNDLE_JOBS=4 \

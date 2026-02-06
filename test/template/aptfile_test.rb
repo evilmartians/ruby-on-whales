@@ -7,6 +7,9 @@ class AptfileTest < GeneratorTestCase
     DOCKER_DEV_ROOT = ".dockerdev_test"
 
     <%= include "aptfile" %>
+
+    FileUtils.mkdir_p(DOCKER_DEV_ROOT)
+    File.write(File.join(DOCKER_DEV_ROOT, "Aptfile"), apt_deps.join("\n") + "\n")
   )
 
   def test_when_no_known_dependencies_present

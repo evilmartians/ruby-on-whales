@@ -2,9 +2,9 @@ x-app: &app
   build:
     context: .
     args:
-      RUBY_VERSION: '3.2.2'
-      PG_MAJOR: '15'
-      NODE_MAJOR: '18'
+      RUBY_VERSION: '3.4.1'
+      PG_MAJOR: '17'
+      NODE_MAJOR: '22'
   image: example-dev:1.0.0
   environment: &env
     NODE_ENV: ${NODE_ENV:-development}
@@ -25,6 +25,8 @@ x-backend: &backend
     - packs:/app/public/packs
     - packs-test:/app/public/packs-test
     - history:/usr/local/hist
+    - claude:/root/.claude
+    - ./.claude.json:/root/.claude.json
     - ./.psqlrc:/root/.psqlrc:ro
     - ./.bashrc:/root/.bashrc:ro
   environment: &backend_environment
@@ -41,6 +43,7 @@ x-backend: &backend
     PSQL_HISTFILE: /usr/local/hist/.psql_history
     IRB_HISTFILE: /usr/local/hist/.irb_history
     EDITOR: vi
+    CLAUDE_CODE_TMPDIR: /root/.claude/__tmp__
   depends_on: &backend_depends_on
     postgres:
       condition: service_healthy
@@ -119,3 +122,4 @@ volumes:
   redis:
   packs:
   packs-test:
+  claude:

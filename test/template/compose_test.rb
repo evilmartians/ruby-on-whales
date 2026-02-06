@@ -16,6 +16,7 @@ class ComposeTest < GeneratorTestCase
     yarn_version = "1.22.17"
     redis_version = "5.0"
     app_name = "app-name"
+    claude = true
 
     file "compose.yml", <%= code("compose.yml") %>
   CODE
@@ -83,6 +84,7 @@ volumes:
   redis:
   packs:
   packs-test:
+  claude:
 CODE
     )
   end
@@ -101,6 +103,7 @@ class ComposeViteMysqlTest < GeneratorTestCase
     redis_version = nil
     node_version = "20"
     app_name = "app-name"
+    claude = false
 
     file "compose.yml", <%= code("compose.yml") %>
   CODE
@@ -181,6 +184,7 @@ class ComposeMinimalTest < GeneratorTestCase
     yarn_version = nil
     redis_version = nil
     app_name = "app-name"
+    claude = false
 
     file "compose.yml", <%= code("compose.yml") %>
   CODE

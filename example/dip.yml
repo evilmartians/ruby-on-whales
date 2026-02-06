@@ -72,6 +72,11 @@ interaction:
     service: redis
     command: redis-cli -h redis
 
+  claude:
+    description: Run Claude CLI
+    service: rails
+    command: claude --dangerously-skip-permissions
+
 provision:
   - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
   - dip compose up -d postgres redis

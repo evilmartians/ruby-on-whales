@@ -46,6 +46,10 @@ x-backend: &backend
     - vite_test:/app/public/vite-test
 <% end %>
     - history:/usr/local/hist
+<% if claude %>
+    - claude:/root/.claude
+    - ./.claude.json:/root/.claude.json
+<% end %>
 <% if postgres_version %>
     - ./.psqlrc:/root/.psqlrc:ro
 <% end %>
@@ -74,6 +78,9 @@ x-backend: &backend
 <% end %>
     IRB_HISTFILE: /usr/local/hist/.irb_history
     EDITOR: vi
+<% if claude %>
+    CLAUDE_CODE_TMPDIR: /root/.claude/__tmp__
+<% end %>
 <% if postgres_version || redis_version %>
   depends_on:
 <% if postgres_version %>
@@ -230,4 +237,7 @@ volumes:
 <% if gemspecs.key?("vite_ruby") %>
   vite_dev:
   vite_test:
+<% end %>
+<% if claude %>
+  claude:
 <% end %>

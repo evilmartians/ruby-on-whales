@@ -2,6 +2,13 @@
 
 ## main
 
+## 2.0.0
+
+- Add Claude Code CLI to the container (`dip claude`)
+- LSP support
+- Vite support
+- MySQL support
+
 ## 1.1.0
 
 - Fix CMD in Dockerfile. ([@palkan][])

@@ -1,8 +1,9 @@
 # Generates the Aptfile with system deps
-DEFAULT_APTFILE = <<~CODE
-  # An editor to work with credentials
-  vim
-CODE
+
+apt_deps = [
+  "# An editor to work with credentials",
+  "vim"
+]
 
 begin
   deps = []
@@ -12,15 +13,7 @@ begin
     deps << dep
   end
 
-  aptfile = File.join(DOCKER_DEV_ROOT, "Aptfile")
-  FileUtils.mkdir_p(File.dirname(aptfile))
-
-  app_deps =
-    if deps.empty?
-      "\n"
-    else
-      (["# Application dependencies"] + deps + [""]).join("\n")
-    end
-
-  File.write(aptfile, DEFAULT_APTFILE + app_deps)
+  if !deps.empty?
+    apt_deps.concat(["# Application dependencies"] + deps)
+  end
 end

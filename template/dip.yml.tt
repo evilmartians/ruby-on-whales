@@ -99,6 +99,13 @@ interaction:
     service: redis
     command: redis-cli -h redis
 <% end %>
+<% if claude %>
+
+  claude:
+    description: Run Claude CLI
+    service: rails
+    command: claude --dangerously-skip-permissions
+<% end %>
 <% if gemspecs.include?("sidekiq-pro") %>
 
   configure_bundler_credentials:
@@ -113,6 +120,9 @@ provision:
   - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
 <% if gemspecs.include?("sidekiq-pro") %>
   - dip configure_bundler_credentials
+<% end %>
+<% if claude %>
+  - (test -f .dockerdev/.claude.json) || (cp .dockerdev/.claude.json.example .dockerdev/.claude.json)
 <% end %>
 <% if postgres_version %>
   - dip compose up -d postgres

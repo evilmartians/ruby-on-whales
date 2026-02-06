@@ -31,7 +31,20 @@ dip rails s
 ```
 
 ## Developing with Dip
+<% if claude %>
+### Using Claude
 
+You run Claude within Docker as follows:
+
+```sh
+dip claude
+```
+
+You will need to authenticate it on the first launch.
+
+Note that it runs with `--dangerously-skip-permissions` by default. The sessions, plugins, skills, etc persist between runs (stored in a volume).
+
+<% end %>
 ### Useful commands
 
 ```sh
