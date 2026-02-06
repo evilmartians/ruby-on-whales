@@ -14,7 +14,11 @@ begin
       ::YAML.load_file(config_path, aliases: true) || {}
     rescue ArgumentError
       ::YAML.load_file(config_path) || {}
-    end.dig("development", "adapter")
+    end.then do |conf|
+      next unless conf.is_a?(Hash)
+
+      conf.dig("development", "adapter")
+    end
   end
 
   selected_database_adapter =
