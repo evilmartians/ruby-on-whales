@@ -48,4 +48,8 @@ if todos.any?
   say_status(:warn, todos.join("\n"))
 end
 
+<%= include "claude_finalize" %>
+
+
+
 say_status :info, "✅  You're ready to sail! Check out #{DOCKER_DEV_ROOT}/README.md or run `dip provision && dip up web` 🚀"

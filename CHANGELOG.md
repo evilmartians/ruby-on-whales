@@ -4,10 +4,9 @@
 
 ## 2.0.0
 
+- Added Claude-delegation: ask AI to finalize the installation (if present)
 - Add Claude Code CLI to the container (`dip claude`)
-- LSP support
-- Vite support
-- MySQL support
+- More configurations/features supported: LSPs, Vite, MySQL
 
 ## 1.1.0
 

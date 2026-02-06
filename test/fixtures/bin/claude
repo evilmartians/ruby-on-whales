@@ -1,0 +1,6 @@
+#!/bin/bash
+# Mock claude binary for testing
+# Writes all arguments to a file specified by CLAUDE_MOCK_OUTPUT env var
+
+output_file="${CLAUDE_MOCK_OUTPUT:-/tmp/claude_mock_args.txt}"
+echo "$@" > "$output_file"
