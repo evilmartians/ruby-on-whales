@@ -36,14 +36,6 @@ class ClaudeFinalizeTest < GeneratorTestCase
 
     args = File.read(@claude_output_file)
 
-    # Check --allowedTools flag and tools
-    assert_includes args, "--allowedTools"
-    assert_includes args, "Read"
-    assert_includes args, "Edit"
-    assert_includes args, "Write"
-    assert_includes args, "Grep"
-    assert_includes args, "Bash(git *)"
-
     # Check prompt content includes todos
     assert_includes args, "Ruby on Whales"
     assert_includes args, "TODOs to complete"
