@@ -1,5 +1,9 @@
-say "👋 Welcome to interactive Ruby on Whales installer 🐳.\n" \
-    "Make sure you've read the guide: https://evilmartians.com/chronicles/ruby-on-whales-docker-for-ruby-rails-development"
+say "👋 Welcome to interactive Ruby on Whales installer.", :cyan
+say "We'll help you to configure a Docker development environment for your Rails project."
+say "\n"
+say "Read the full guide here:"
+say "https://evilmartians.com/chronicles/ruby-on-whales-docker-for-ruby-rails-development", :blue
+say ""
 
 DOCKER_DEV_ROOT = ".dockerdev"
 
@@ -42,10 +46,13 @@ if database_url
 end
 
 if todos.any?
-  todos.unshift("📝  Important things to take care of:")
-  say_status(:warn, todos.join("\n"))
+  say_status(:warn, "📝  Important things to take care of:")
+  print_wrapped todos.join("\n")
 end
 
 <%= include "claude_finalize" %>
 
-say_status :info, "✅  You're ready to sail! Check out #{DOCKER_DEV_ROOT}/README.md or run `dip provision && dip up web` 🚀"
+say "✅  You're ready to sail!", :cyan
+say "\n"
+say "Check out #{DOCKER_DEV_ROOT}/README.md or run `dip provision && dip up web` 🚀"
+say ""

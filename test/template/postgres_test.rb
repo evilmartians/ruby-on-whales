@@ -14,12 +14,12 @@ class PostgresTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which PostgreSQL version do you want to install? (Press ENTER to use 15)"
+        "Which PostgreSQL version do you want to install?"
       )
 
       assert_line_printed(
         output,
-        "POSTGRES_VERSION=15"
+        "PostgreSQL: 17"
       )
     end
   end
@@ -28,12 +28,12 @@ class PostgresTest < GeneratorTestCase
     run_generator(input: ["11.3"]) do |output|
       assert_line_printed(
         output,
-        "Which PostgreSQL version do you want to install? (Press ENTER to use 15)"
+        "Which PostgreSQL version do you want to install?"
       )
 
       assert_line_printed(
         output,
-        "POSTGRES_VERSION=11.3"
+        "PostgreSQL: 11.3"
       )
     end
   end
@@ -51,12 +51,12 @@ class PostgisTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which PostgreSQL version do you want to install? (Press ENTER to use 15)"
+        "Which PostgreSQL version do you want to install?"
       )
 
       assert_line_printed(
         output,
-        "POSTGRES_IMAGE=postgis/postgis:15"
+        "POSTGRES_IMAGE=postgis/postgis:17"
       )
     end
   end

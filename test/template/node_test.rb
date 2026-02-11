@@ -11,20 +11,29 @@ class NodeTest < GeneratorTestCase
   )
 
   def test_default_node_versions
-    run_generator(input: ["\r"]) do |output|
+    prepare_dummy do
+      File.write("yarn.lock", "")
+    end
+
+    run_generator(input: ["y", "\r", "\r"]) do |output|
       assert_line_printed(
         output,
-        "Which Node version do you want to install? (Press ENTER to use 18, type 'n/no' to skip installing Node)"
+        "Do you need Node.js?"
       )
 
       assert_line_printed(
         output,
-        "Which Yarn version do you want to install? (Press ENTER to install the latest one, type 'n/no' to skip installing Yarn)"
+        "Which Node version do you want to install?"
       )
 
       assert_line_printed(
         output,
-        "NODE_VERSION=18"
+        "Which Yarn version do you want to install?"
+      )
+
+      assert_line_printed(
+        output,
+        "NODE_VERSION=22"
       )
 
       assert_line_printed(
@@ -35,15 +44,24 @@ class NodeTest < GeneratorTestCase
   end
 
   def test_custom_node_versions
-    run_generator(input: ["14","1.13.0"]) do |output|
+    prepare_dummy do
+      File.write("yarn.lock", "")
+    end
+
+    run_generator(input: ["y", "14", "1.13.0"]) do |output|
       assert_line_printed(
         output,
-        "Which Node version do you want to install? (Press ENTER to use 18, type 'n/no' to skip installing Node)"
+        "Do you need Node.js?"
       )
 
       assert_line_printed(
         output,
-        "Which Yarn version do you want to install? (Press ENTER to install the latest one, type 'n/no' to skip installing Yarn)"
+        "Which Node version do you want to install?"
+      )
+
+      assert_line_printed(
+        output,
+        "Which Yarn version do you want to install?"
       )
 
       assert_line_printed(
@@ -62,28 +80,11 @@ class NodeTest < GeneratorTestCase
     run_generator(input: ["n"]) do |output|
       assert_line_printed(
         output,
-        "Which Node version do you want to install? (Press ENTER to use 18, type 'n/no' to skip installing Node)"
+        "Do you need Node.js?"
       )
       assert_line_printed(
         output,
         "NODE_VERSION=nope"
-      )
-    end
-  end
-
-  def test_skip_yarn
-    run_generator(input: ["\r", "n"]) do |output|
-      assert_line_printed(
-        output,
-        "Which Node version do you want to install? (Press ENTER to use 18, type 'n/no' to skip installing Node)"
-      )
-      assert_line_printed(
-        output,
-        "NODE_VERSION=18"
-      )
-      assert_line_printed(
-        output,
-        "YARN_VERSION=false"
       )
     end
   end

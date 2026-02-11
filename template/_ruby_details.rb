@@ -16,7 +16,7 @@ begin
 
   begin
     if maybe_ruby_version
-      ruby_version = ask("Which Ruby version would you like to use? (Press ENTER to use #{maybe_ruby_version})") || ""
+      ruby_version = ask("Which Ruby version would you like to use?", default: maybe_ruby_version) || ""
       ruby_version = maybe_ruby_version if ruby_version.empty?
     else
       ruby_version = ask("Which Ruby version would you like to use? (For example, 3.2.0)") || ""
@@ -28,3 +28,5 @@ begin
     retry
   end
 end
+
+say_status :info, "Ruby: #{ruby_version}"

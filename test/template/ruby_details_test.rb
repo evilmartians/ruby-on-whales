@@ -12,7 +12,7 @@ class RubyDetailsTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (Press ENTER to use 3.2.1)"
+        "Which Ruby version would you like to use?"
       )
       assert_line_printed(
         output,
@@ -29,7 +29,7 @@ class RubyDetailsTest < GeneratorTestCase
     run_generator(input: ["2.7.5"]) do |output|
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (For example, 3.2.0)"
+        "Which Ruby version would you like to use?"
       )
       assert_line_printed(
         output,
@@ -42,7 +42,7 @@ class RubyDetailsTest < GeneratorTestCase
     run_generator(input: ["3.1.0"]) do |output|
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (Press ENTER to use 3.2.1)"
+        "Which Ruby version would you like to use?"
       )
       assert_line_printed(
         output,
@@ -55,7 +55,7 @@ class RubyDetailsTest < GeneratorTestCase
     run_generator(input: ["3_1z2b0", "3.1.1"]) do |output|
       assert_line_printed(
         output,
-        "Which Ruby version would you like to use? (Press ENTER to use 3.2.1)"
+        "Which Ruby version would you like to use?"
       )
       assert_line_printed(
         output,

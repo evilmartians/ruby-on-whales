@@ -4,8 +4,10 @@ require "test_helper"
 
 class DatabaseTest < GeneratorTestCase
   template %q(
-    <%= include "database" %>
     gemspecs = {}
+
+    <%= include "database" %>
+
     puts "DATABASE=#{database_adapter ? database_adapter : 'nope'}"
   )
 
@@ -13,7 +15,7 @@ class DatabaseTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which database adapter do you use? (Press ENTER to use postgresql)"
+        "Which database adapter do you use? (postgresql)"
       )
       assert_line_printed(
         output,

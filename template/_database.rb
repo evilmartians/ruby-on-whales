@@ -32,17 +32,13 @@ begin
       end
   end
 
-  selected_database_adapter =
-    if maybe_database_adapter
-      ask "Which database adapter do you use? (Press ENTER to use #{maybe_database_adapter})"
-    else
-      ask "Which database adapter do you use?"
-    end
+  selected_database_adapter = ask "Which database adapter do you use?", default: maybe_database_adapter
 
-  selected_database_adapter = maybe_database_adapter if selected_database_adapter.empty?
+  selected_database_adapter = maybe_database_adapter if selected_database_adapter.nil? || selected_database_adapter.empty?
 
   if supported_adapters.include?(selected_database_adapter)
     database_adapter = selected_database_adapter
+    say_status :info, "Database: #{database_adapter}"
   else
     say_status :warn, "Unfortunately, we do no support #{selected_database_adapter} yet. Please, configure it yourself"
   end

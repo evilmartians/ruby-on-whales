@@ -151,9 +151,9 @@ CODE
     volumes:
       - ${PWD}:/${PWD}:cached
       - bundle:/usr/local/bundle
-      - node_modules:/app/node_modules
-      - vite_dev:/app/public/vite-dev
-      - vite_test:/app/public/vite-test
+      - node_modules:/${PWD}/node_modules
+      - vite_dev:/${PWD}/public/vite-dev
+      - vite_test:/${PWD}/public/vite-test
 CODE
     )
 

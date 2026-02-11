@@ -18,7 +18,7 @@ class AptfileTest < GeneratorTestCase
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Would like to install additional system packages? (Type a name or press ENTER to continue)"
+        "Would you like to install other packages?"
       )
     end
 
@@ -29,14 +29,10 @@ class AptfileTest < GeneratorTestCase
   end
 
   def test_with_user_provided_deps
-    run_generator(input: ["ntp"]) do |output|
+    run_generator(input: ["ntp, ejson "]) do |output|
       assert_line_printed(
         output,
-        "Would like to install additional system packages? (Type a name or press ENTER to continue)"
-      )
-      assert_line_printed(
-        output,
-        "Would like to install additional system packages? (We have: ntp) (Type a name or press ENTER to continue)"
+        "Would you like to install other packages?"
       )
     end
 
@@ -45,6 +41,7 @@ class AptfileTest < GeneratorTestCase
       vim
       # Application dependencies
       ntp
+      ejson
     CODE
   end
 end

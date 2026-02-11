@@ -16,10 +16,18 @@ begin
     deps << "libvips"
   end
 
-  loop do
-    dep = ask("Would like to install additional system packages?#{deps.any? ? " (We have: #{deps.join(", ")})" : ""} (Type a name or press ENTER to continue)") || ""
-    break if dep.empty?
-    deps << dep
+  say "Here is the list of system packages we're going to install:", :blue
+  print_in_columns deps
+
+  more_deps = ask("Would you like to install other packages? Type comma-separated names or press ENTER to continue") || ""
+
+  user_deps = more_deps.split(/\s*,\s*/).map(&:strip)
+
+  unless user_deps.empty?
+    say "Additional packages:", :blue
+    print_in_columns user_deps
+
+    deps.concat(user_deps)
   end
 
   if !deps.empty?

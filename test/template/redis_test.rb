@@ -9,20 +9,18 @@ class RedisTest < GeneratorTestCase
     }
 
     <%= include "redis" %>
-
-    puts "REDIS_VERSION=#{redis_version}"
   )
 
   def test_default_redis_version
     run_generator(input: [""]) do |output|
       assert_line_printed(
         output,
-        "Which Redis version do you want to use? (Press ENTER to use 7.0)"
+        "Which Redis version do you want to use?"
       )
 
       assert_line_printed(
         output,
-        "REDIS_VERSION=7.0"
+        "Redis: 7.4"
       )
     end
   end
@@ -36,7 +34,7 @@ class RedisTest < GeneratorTestCase
 
       assert_line_printed(
         output,
-        "REDIS_VERSION=4.0"
+        "Redis: 4.0"
       )
     end
   end

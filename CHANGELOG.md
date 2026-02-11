@@ -2,6 +2,10 @@
 
 ## main
 
+## 2.1.0
+
+- TUI refactoring (better use of Thor built-in capabilities and preparation for Thor Charmed).
+
 ## 2.0.0
 
 - Added Claude-delegation: ask AI to finalize the installation (if present)
