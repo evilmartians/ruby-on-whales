@@ -20,23 +20,17 @@ if claude_available
 
       And `dip.yml` in the project root for the Dip CLI.
 
-      ## TODOs to complete
+      ## TODOs
 
       #{todos_text}
 
       ## Your tasks
 
-      1. **Review the generated configuration** - Check the files in `#{DOCKER_DEV_ROOT}/` and `dip.yml` to ensure they match the project's needs
-      2. **Complete the TODOs** - Help me address each item listed above
-      3. **Suggest improvements** - Based on this project's structure, suggest any additional Docker configuration that might be helpful
-      4. **Document the setup** - Create or update documentation appropriate for this project:
-         - If CLAUDE.md or AGENTS.md exists, add Docker-related instructions there
-         - If there's a docs/ folder, consider adding a Docker setup guide
-         - Otherwise, ensure #{DOCKER_DEV_ROOT}/README.md is comprehensive
+      1. **Polish the generated configuration** — review the files in `#{DOCKER_DEV_ROOT}/` and `dip.yml` against the project's actual structure (check database.yml, Gemfile, etc.) and fix any issues directly.
+      2. **Complete the mandatory TODOs** listed above (e.g., add DATABASE_URL to database.yml). Apply fixes directly without asking. Do not ask questions.
+      3. **Create a `TODO.md` file** in `#{DOCKER_DEV_ROOT}/` listing optional next steps the user may want to configure later (system tests, Vite, CI, etc.).
 
-      IMPORTANT: Provide the user with a TODO list of changes before applying them. Explain every change and why it's needed (based on the materials provided, use links if necessary). Allow the user to pick only ones to implement right now and postpone others (ask if needed to document somewhere).
-
-      Exit the session after done with configuring the Docker setup (so the installer can get control back).
+      Exit the session when done (so the installer can get control back). Do not provide lengthy explanations.
 
       ## References
 
@@ -47,15 +41,21 @@ if claude_available
     PROMPT
 
     say_status :info, "Handing over to Claude to review your Docker setup...\n"
+    say ""
 
-    # Use fork + exec to hand over control to Claude for interactive session
-    # while allowing the parent process to complete
-    pid = fork do
-      exec(
-        "claude",
-        prompt
-      )
+    claude_cmd = ["claude", "--allowedTools", "Read,Edit,Write,Glob,Grep,Bash(git:*)", "-p", prompt]
+
+    output = if defined?(Gum) && ENV["RBYTES_DISABLE_GUM"] != "1"
+      Gum.spin("Claude is thinking...") do
+        IO.popen(claude_cmd, &:read)
+      end
+    else
+      IO.popen(claude_cmd, &:read)
     end
-    Process.wait(pid)
+
+    say "Here is what Claude said", :blue
+    print_wrapped output
+    say "\n"
+    say ""
   end
 end

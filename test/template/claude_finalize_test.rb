@@ -38,15 +38,20 @@ class ClaudeFinalizeTest < GeneratorTestCase
 
     # Check prompt content includes todos
     assert_includes args, "Ruby on Whales"
-    assert_includes args, "TODOs to complete"
     assert_includes args, "Important things to take care of"
     assert_includes args, "ENV[\"RAILS_ENV\"] = \"test\""
     assert_includes args, "DATABASE_URL"
+
+    # Check prompt includes TODO.md instruction
+    assert_includes args, "TODO.md"
 
     # Check prompt includes references
     assert_includes args, "evilmartians.com/chronicles/ruby-on-whales-docker-for-ruby-rails-development"
     assert_includes args, "system-of-a-test"
     assert_includes args, "vite-lizing-rails"
+
+    # Check --allowedTools flag is passed
+    assert_includes args, "--allowedTools"
   end
 
   def test_skips_when_user_declines
