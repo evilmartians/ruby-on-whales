@@ -7,6 +7,8 @@ end
 
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
+ENV["RBYTES_DISABLE_GUM"] = "1"
+
 require "rbytes"
 require "ruby_bytes/test_case"
 

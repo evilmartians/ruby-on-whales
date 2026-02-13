@@ -9,7 +9,7 @@ x-app: &app
   working_dir: ${PWD}
   environment: &env
     NODE_ENV: ${NODE_ENV:-development}
-    RAILS_ENV: ${RAILS_ENV:-development}
+    RAILS_ENV: ${RAILS_ENV:-}
   tmpfs:
     - /tmp
     - /${PWD}/tmp/pids
@@ -66,6 +66,9 @@ services:
         condition: service_started
       sidekiq:
         condition: service_started
+      # # Uncomment these lines to always run Vite dev server
+      # vite:
+      #   condition: service_started
 
   sidekiq:
     <<: *backend
@@ -98,21 +101,20 @@ services:
       timeout: 3s
       retries: 30
 
-  webpacker:
-    <<: *app
-    command: bundle exec ./bin/webpack-dev-server
-    ports:
-      - '3035:3035'
+  vite:
+    <<: *backend
+    command: ./bin/vite dev
     volumes:
-      - ..:/${PWD}/cached
+      - ${PWD}:/${PWD}:cached
       - bundle:/usr/local/bundle
       - node_modules:/${PWD}/node_modules
-      - packs:/${PWD}/public/packs
-      - packs-test:/${PWD}/public/packs-test
+      - vite_dev:/${PWD}/public/vite-dev
+      - vite_test:/${PWD}/public/vite-test
     environment:
-      <<: *env
-      WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
-      YARN_CACHE_FOLDER: /${PWD}/node_modules/.yarn-cache
+      <<: *backend_environment
+      VITE_RUBY_HOST: 0.0.0.0 # bind to container
+    ports:
+      - "3036:3036"
 
 volumes:
   bundle:

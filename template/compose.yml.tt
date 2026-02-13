@@ -18,7 +18,7 @@ x-app: &app
 <% if node_version %>
     NODE_ENV: ${NODE_ENV:-development}
 <% end %>
-    RAILS_ENV: ${RAILS_ENV:-development}
+    RAILS_ENV: ${RAILS_ENV:-}
   tmpfs:
     - /tmp
     - ${PWD}/tmp/pids

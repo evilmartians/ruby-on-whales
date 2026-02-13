@@ -13,7 +13,7 @@ begin
   end
 
   if gemspecs.key?("ruby-vips")
-    deps << "libvips"
+    deps << "libvips-dev"
   end
 
   say "Here is the list of system packages we're going to install:", :blue
