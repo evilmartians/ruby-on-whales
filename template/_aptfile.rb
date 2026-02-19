@@ -16,6 +16,10 @@ begin
     deps << "libvips-dev"
   end
 
+  if gemspecs.key?("psych")
+    deps << "libyaml-dev"
+  end
+
   say "Here is the list of system packages we're going to install:", :blue
   print_in_columns deps
 
