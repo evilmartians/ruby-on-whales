@@ -7,6 +7,8 @@ This repository contains an example dockerized Ruby on Rails development configu
        title="Ruby on Whales logo" src="./assets/logo.png">
 </p>
 
+<img src="https://cdn.evilmartians.com/badges/logo-no-label.svg" alt="Evil Martians logo" width="22" height="16" /> This project is built by <b><a href="https://evilmartians.com/">Evil Martians</a></b>, an American design and engineering consultancy for <b>developer tools, AI, and cybersecurity startups</b>.
+
 ## Example configuration
 
 See the [example](./example) folder.
