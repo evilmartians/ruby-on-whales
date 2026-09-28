@@ -2,6 +2,10 @@
 
 ## main
 
+- Add `dip claude:update` command and persist Claude CLI binaries in the `claude_cli` volume (updates survive container restarts).
+- Mount `/tmp` tmpfs with `exec` to support CLIs that execute from `/tmp` (e.g., tailwindcss).
+- Add `clauder` shell alias (`claude --dangerously-skip-permissions`).
+
 ## 2.1.0
 
 - TUI refactoring (better use of Thor built-in capabilities and preparation for Thor Charmed).

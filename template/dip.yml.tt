@@ -105,6 +105,11 @@ interaction:
     description: Run Claude CLI
     service: rails
     command: claude --dangerously-skip-permissions
+  'claude:update':
+    description: Update Claude Code CLI (persisted in the claude_cli volume)
+    service: rails
+    command: claude update
+    compose_run_options: [ no-deps ]
 <% end %>
 <% if gemspecs.include?("sidekiq-pro") %>
 

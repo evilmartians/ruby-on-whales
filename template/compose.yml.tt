@@ -20,7 +20,7 @@ x-app: &app
 <% end %>
     RAILS_ENV: ${RAILS_ENV:-}
   tmpfs:
-    - /tmp
+    - /tmp:exec # exec is needed for some CLIs (e.g., tailwindcss)
     - ${PWD}/tmp/pids
 
 x-backend: &backend
@@ -47,7 +47,14 @@ x-backend: &backend
 <% end %>
     - history:/usr/local/hist
 <% if claude %>
+    # Claude state (sessions, settings.json, todos, project data) — named volume.
     - claude:/root/.claude
+    # Claude CLI binaries (~/.local/bin/claude -> ~/.local/share/claude/versions/X).
+    # Seeded from the image on first run; `dip claude:update` writes here, so
+    # updates survive container restarts without rebuilding the image.
+    # NOTE: once created, the volume wins over the image; rebuilding the image doesn't update the CLI.
+    - claude_cli:/root/.local
+    # Claude main config (auth tokens, project list)
     - ./.claude.json:/root/.claude.json
 <% end %>
 <% if postgres_version %>
@@ -240,4 +247,5 @@ volumes:
 <% end %>
 <% if claude %>
   claude:
+  claude_cli:
 <% end %>
