@@ -2,6 +2,9 @@
 
 ## main
 
+- Ask for optional user instructions before handing over to Claude; they are added to the prompt with the highest priority.
+- Fix reading `.ruby-version` files with a prefix (e.g., `ruby-3.4.4`).
+- Fix reading `database.yml` files with ERB tags and multi-database configurations (`development.primary.adapter`).
 - Add `dip claude:update` command and persist Claude CLI binaries in the `claude_cli` volume (updates survive container restarts).
 - Mount `/tmp` tmpfs with `exec` to support CLIs that execute from `/tmp` (e.g., tailwindcss).
 - Add `clauder` shell alias (`claude --dangerously-skip-permissions`).

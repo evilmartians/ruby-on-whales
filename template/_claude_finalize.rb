@@ -4,8 +4,24 @@ claude_available = system("which claude > /dev/null 2>&1")
 
 if claude_available
   if yes?("Would you like to run Claude to review and polish your Docker configuration?")
+    user_instructions = ask("Any specific instructions for Claude? (press Enter to skip)").to_s.strip
+
     # Build the prompt with todos
     todos_text = todos.map { |t| t.sub(/^\s*-?\s*/, "- ") }.join("\n")
+
+    user_instructions_text = if user_instructions.empty?
+      ""
+    else
+      <<~TEXT
+        ## User instructions (highest priority)
+
+        The user provided the following instructions. They take precedence over the default tasks below.
+        If they conflict with the default tasks, follow the user instructions.
+
+        #{user_instructions}
+
+      TEXT
+    end
 
     prompt = <<~PROMPT
       I just set up a Docker development environment for this Rails application using the "Ruby on Whales" template.
@@ -23,6 +39,8 @@ if claude_available
       ## TODOs
 
       #{todos_text}
+
+      #{user_instructions_text.chomp}
 
       ## Your tasks
 

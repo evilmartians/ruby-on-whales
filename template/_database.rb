@@ -10,14 +10,19 @@ begin
 
   if File.file?(config_path)
     require "yaml"
+    # Strip ERB tags, so the file could be parsed as YAML
+    config_yml = File.read(config_path).gsub(/\<\%.*?\%\>/m, "")
     maybe_database_adapter = begin
-      ::YAML.load_file(config_path, aliases: true) || {}
+      ::YAML.safe_load(config_yml, aliases: true) || {}
     rescue ArgumentError
-      ::YAML.load_file(config_path) || {}
+      ::YAML.safe_load(config_yml) || {}
+    rescue ::Psych::Exception
+      {}
     end.then do |conf|
       next unless conf.is_a?(Hash)
 
-      conf.dig("development", "adapter")
+      # Support multi-database configuration
+      conf.dig("development", "adapter") || conf.dig("development", "primary", "adapter")
     end
   end
 

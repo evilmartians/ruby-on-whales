@@ -26,7 +26,7 @@ class ClaudeFinalizeTest < GeneratorTestCase
     ENV["CLAUDE_MOCK_OUTPUT"] = @claude_output_file
 
     begin
-      run_generator(input: ["y"]) # "y" for yes? prompt
+      run_generator(input: ["y", ""]) # "y" for yes? prompt, empty instructions
     ensure
       ENV["PATH"] = original_path
       ENV.delete("CLAUDE_MOCK_OUTPUT")
@@ -52,6 +52,33 @@ class ClaudeFinalizeTest < GeneratorTestCase
 
     # Check --allowedTools flag is passed
     assert_includes args, "--allowedTools"
+
+    refute_includes args, "User instructions"
+  end
+
+  def test_includes_user_instructions_in_prompt
+    original_path = ENV["PATH"]
+    ENV["PATH"] = "#{@mock_bin}:#{original_path}"
+    ENV["CLAUDE_MOCK_OUTPUT"] = @claude_output_file
+
+    begin
+      run_generator(input: ["y", "Use Ruby 3.4 and do not touch dip.yml"]) do |output|
+        assert_line_printed(
+          output,
+          "Any specific instructions for Claude? (press Enter to skip)"
+        )
+      end
+    ensure
+      ENV["PATH"] = original_path
+      ENV.delete("CLAUDE_MOCK_OUTPUT")
+    end
+
+    args = File.read(@claude_output_file)
+
+    assert_includes args, "## User instructions (highest priority)"
+    assert_includes args, "Use Ruby 3.4 and do not touch dip.yml"
+    # User instructions must come before the default tasks
+    assert_operator args.index("## User instructions"), :<, args.index("## Your tasks")
   end
 
   def test_skips_when_user_declines

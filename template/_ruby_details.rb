@@ -11,7 +11,8 @@ begin
   end
 
   if File.file?(".ruby-version")
-    maybe_ruby_version = File.read(".ruby-version").strip
+    # Support prefixed formats, e.g., "ruby-3.4.4"
+    maybe_ruby_version = File.read(".ruby-version")[/\d+\.\d+(?:\.\d+)?/] || maybe_ruby_version
   end
 
   begin

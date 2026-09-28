@@ -41,6 +41,38 @@ class DatabaseTest < GeneratorTestCase
     end
   end
 
+  def test_with_erb_and_multi_database_yml
+    prepare_dummy do
+      FileUtils.rm(File.join("config", "database.yml"))
+      File.write(File.join("config", "database.yml"), <<~'YML')
+        <% data_path = ENV.fetch("SQLITE_DATA_PATH", "db") %>
+        default: &default
+          adapter: sqlite3
+          max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+          timeout: 5000
+
+        development:
+          primary:
+            <<: *default
+            database: <%= File.join(data_path, "development", "data.sqlite3") %>
+          queue:
+            <<: *default
+            database: <%= File.join(data_path, "development", "queue.sqlite3") %>
+      YML
+    end
+
+    run_generator(input: [""]) do |output|
+      assert_line_printed(
+        output,
+        "Which database adapter do you use? (sqlite3)"
+      )
+      assert_line_printed(
+        output,
+        "DATABASE=sqlite3"
+      )
+    end
+  end
+
   def test_with_unconventional_database_yml
     prepare_dummy do
       FileUtils.rm(File.join("config", "database.yml"))

@@ -38,6 +38,23 @@ class RubyDetailsTest < GeneratorTestCase
     end
   end
 
+  def test_when_ruby_version_file_has_prefix
+    prepare_dummy do
+      File.write(".ruby-version", "ruby-3.4.4\n")
+    end
+
+    run_generator(input: [""]) do |output|
+      assert_line_printed(
+        output,
+        "Which Ruby version would you like to use? (3.4.4)"
+      )
+      assert_line_printed(
+        output,
+        "RUBY_VERSION=3.4.4"
+      )
+    end
+  end
+
   def test_when_ruby_version_is_provided_by_user
     run_generator(input: ["3.1.0"]) do |output|
       assert_line_printed(
