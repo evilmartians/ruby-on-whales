@@ -1,0 +1,15 @@
+# Loaded in git worktrees only (from dip.override.yml).
+#
+# These files/dirs must be shared for worktree-d containers to operate
+x-worktree-volumes: &worktree_volumes
+  - ${GIT_COMMON_DIR}:${GIT_COMMON_DIR}
+
+services:
+  rails:
+    volumes: *worktree_volumes
+  web:
+    volumes: *worktree_volumes
+  sidekiq:
+    volumes: *worktree_volumes
+  vite:
+    volumes: *worktree_volumes

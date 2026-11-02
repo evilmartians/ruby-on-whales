@@ -2,8 +2,11 @@ version: '7.1'
 
 # Define default environment variables to pass
 # to Docker Compose
-# environment:
-#   RAILS_ENV: development
+environment:
+  # Override ports on the fly to run multiple copies of the app
+  # (can be used by worktrees or clones)
+  RAILS_PORT: 3000
+  VITE_PORT: 3036
 
 compose:
   files:
@@ -77,8 +80,22 @@ interaction:
     service: rails
     command: claude --dangerously-skip-permissions
 
+  'worktree:new':
+    description: Create a git worktree with its own Docker env (dip worktree:new <branch> [<base>])
+    command: .dockerdev/bin/worktree new
+  'worktree:drop':
+    description: Remove a git worktree and its Docker env (dip worktree:drop <name-or-path> [--force])
+    command: .dockerdev/bin/worktree drop
+  'worktree:init':
+    description: Set up the Docker env for the current git worktree (runs on checkout automatically)
+    command: .dockerdev/bin/worktree init
+
 provision:
   - '[[ "$RESET_DOCKER" == "true" ]] && echo "Re-creating the Docker env from scratch..." && dip compose down --volumes || echo "Re-provisioning the Docker env..."'
+  # Volumes shared by the main checkout and git worktrees (`external` in compose.yml)
+  - '[[ "$RESET_DOCKER" == "true" ]] && .dockerdev/bin/worktree volumes --reset || .dockerdev/bin/worktree volumes'
+  # Git hooks (the post-checkout hook sets up the Docker env for new worktrees)
+  - (command -v lefthook > /dev/null && lefthook install) || echo "⚠️  Install lefthook to set up worktrees automatically (or run 'dip worktree:init')"
   - dip compose up -d postgres redis
   - (test -f .dockerdev/.claude.json) || (cp .dockerdev/.claude.json.example .dockerdev/.claude.json)
   - dip bundle check || dip bundle install

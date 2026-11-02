@@ -1,0 +1,354 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Git worktrees with isolated Docker (dip) environments.
+#
+# Each linked worktree gets its own Compose project, host ports, and a copy of
+# the stateful volumes. See the "Worktrees" section in .dockerdev/README.md.
+#
+# Usage (runs on the host, from the project root):
+#
+#   .dockerdev/bin/worktree new <branch> [<base>]   # dip worktree:new
+#   .dockerdev/bin/worktree drop <name-or-path> [--force]   # dip worktree:drop
+#   .dockerdev/bin/worktree init      # configure the current worktree (idempotent)
+#   .dockerdev/bin/worktree hook <prev-head>    # lefthook post-checkout entry point
+#   .dockerdev/bin/worktree volumes [--reset]   # create (or re-create) the volumes shared by all worktrees
+#
+# == How it works
+#
+# - A lefthook `post-checkout` hook runs `.dockerdev/bin/worktree init` for new worktrees. It also works for worktrees that Zed or Claude Code create. Run `dip worktree:init` by hand if the hook didn't run.
+# - `init` writes a gitignored `dip.override.yml` with the Compose project name and host ports. Worktree N uses ports 3000+100N (Rails) and 3036+100N (Vite).
+# - `init` copies credential keys and `.bundle/config` from the main checkout (an allowlist in the script).
+# - `init` clones the volumes in `x-worktree.clone` (`compose.yml`) from the main checkout. The `external` volumes (gems and Claude) are shared by all checkouts; `RESET_DOCKER=true dip provision` re-creates them from the main checkout only. Other volumes start empty (e.g., each worktree has its own Postgres and Redis; `dip provision` creates the databases).
+# - `compose.worktree.yml` mounts the main repo's `.git` directory into the containers. `compose.yml` mounts the main checkout's `.dockerdev/.claude.json` via `GIT_WORKTREE_MAIN_DIR`.
+#
+# Set `WORKTREES_DIR` to create worktrees in another directory.
+#
+require "yaml"
+require "json"
+require "fileutils"
+require "open3"
+require "shellwords"
+
+class Worktree
+  OVERRIDE_FILE = "dip.override.yml"
+  COMPOSE_FILE = ".dockerdev/compose.yml"
+  WORKTREE_COMPOSE_FILE = ".dockerdev/compose.worktree.yml"
+
+  # Gitignored files a worktree needs. Only files listed here are copied (no globs for secrets).
+  COPY_FILES = %w[
+    .bundle/config
+    config/master.key
+    config/credentials/development.key
+    config/credentials/test.key
+  ].freeze
+
+  # Host ports: <default> + SLOT_STEP * slot (slot 0 is the main checkout)
+  PORTS = {"RAILS_PORT" => 3000, "VITE_PORT" => 3036}.freeze
+  SLOT_STEP = 100
+
+  ID_MAX_LENGTH = 20
+
+  # dip exports its `environment` vars to the commands it runs. Drop them before calling dip for
+  # another worktree, so the caller's values don't win over the target's dip.override.yml.
+  DIP_ENV_KEYS = (%w[GIT_WORKTREE_ID GIT_WORKTREE_SLOT GIT_WORKTREE_MAIN_DIR GIT_COMMON_DIR] + PORTS.keys).freeze
+
+  Error = Class.new(StandardError)
+
+  def run(command, *args)
+    case command
+    when "new" then create(*args)
+    when "drop" then drop(*args)
+    when "init" then init
+    when "hook" then hook(*args)
+    when "volumes" then args.include?("--reset") ? reset_shared_volumes : ensure_shared_volumes
+    else
+      raise Error, "Unknown command: #{command.inspect}. Use one of: new, drop, init, hook, volumes"
+    end
+  end
+
+  private
+
+  # == Commands
+
+  def create(branch = nil, base = "HEAD")
+    raise Error, "Usage: dip worktree:new <branch> [<base>]" if branch.nil? || branch.start_with?("-")
+
+    path = File.join(worktrees_dir, slugify(branch))
+    raise Error, "#{path} already exists" if File.exist?(path)
+
+    add_args =
+      if git_ok?("show-ref", "--verify", "--quiet", "refs/heads/#{branch}")
+        [path, branch]
+      elsif git_ok?("show-ref", "--verify", "--quiet", "refs/remotes/origin/#{branch}")
+        ["--track", "-b", branch, path, "origin/#{branch}"]
+      else
+        ["-b", branch, path, base]
+      end
+
+    # The post-checkout hook runs `init` already; the call below covers branches without the hook
+    sh! "git", "-C", main_dir, "worktree", "add", *add_args
+    Dir.chdir(path) { init }
+
+    say "Provisioning the Docker env..."
+    sh! clean_env, "dip", "provision", chdir: path
+
+    env = override_env(path)
+    say <<~MSG
+
+      ✅ Worktree is ready: #{path}
+
+        cd #{path.shellescape}
+        dip rails s   # http://localhost:#{env["RAILS_PORT"]}
+    MSG
+  end
+
+  def drop(target = nil, *flags)
+    raise Error, "Usage: dip worktree:drop <name-or-path> [--force]" if target.nil? || target.start_with?("-")
+
+    force = flags.include?("--force")
+    worktree = find_worktree(target)
+    path = worktree.fetch(:path)
+
+    unless force
+      dirty, _ = git!("-C", path, "status", "--porcelain")
+      raise Error, "#{path} has uncommitted changes (use --force to drop anyway)" unless dirty.strip.empty?
+    end
+
+    if (project = override_project(path))
+      say "Removing Docker containers and volumes of #{project}..."
+      sh! clean_env, "dip", "compose", "down", "--remove-orphans", chdir: path
+
+      # Shared volumes are external (not labeled with this project), so they stay
+      volumes, _ = capture!("docker", "volume", "ls", "-q", "--filter", "label=com.docker.compose.project=#{project}")
+      volumes = volumes.split
+      sh! "docker", "volume", "rm", *volumes if volumes.any?
+    end
+
+    sh! "git", "-C", main_dir, "worktree", "remove", *(force ? ["--force"] : []), path
+
+    say "✅ Dropped #{path}"
+    say "The branch is kept. Delete it with: git branch -d #{worktree[:branch]}" if worktree[:branch]
+  end
+
+  def init
+    raise Error, "Not a linked git worktree: #{toplevel}" unless linked_worktree?
+
+    Dir.chdir(toplevel) do
+      write_override unless File.exist?(OVERRIDE_FILE)
+      copy_files
+      ensure_shared_volumes
+      clone_volumes
+    end
+  end
+
+  def hook(prev_head = nil)
+    # post-checkout gets a null previous HEAD only for new checkouts (`git worktree add`, `git clone`)
+    return unless prev_head&.match?(/\A0+\z/)
+    return unless linked_worktree?
+
+    init
+  rescue Error => e
+    # Never fail `git worktree add`; `dip worktree:init` can be re-run by hand
+    warn "⚠️  Worktree Docker setup failed: #{e.message}"
+    warn "   Fix the problem and run `.dockerdev/bin/worktree init` in #{toplevel}"
+  end
+
+  # == Setup steps
+
+  def write_override
+    others = other_worktree_envs
+    slot = (1..).find { |n| others.none? { _1["GIT_WORKTREE_SLOT"].to_s == n.to_s } }
+
+    id = slugify(File.basename(toplevel))
+    id = "#{id}-#{slot}" if others.any? { _1["GIT_WORKTREE_ID"] == id }
+
+    env = {
+      "GIT_WORKTREE_ID" => id,
+      "GIT_WORKTREE_SLOT" => slot.to_s,
+      "GIT_WORKTREE_MAIN_DIR" => main_dir,
+      "GIT_COMMON_DIR" => common_dir
+    }
+    PORTS.each { |name, port| env[name] = (port + SLOT_STEP * slot).to_s }
+
+    config = {
+      "environment" => env,
+      "compose" => {
+        "files" => [COMPOSE_FILE, WORKTREE_COMPOSE_FILE],
+        "project_name" => "#{main_project}-#{id}"
+      }
+    }
+
+    File.write(OVERRIDE_FILE, <<~YAML + config.to_yaml.delete_prefix("---\n"))
+      # Generated by .dockerdev/bin/worktree for this git worktree. Do not commit.
+      # Delete the file and run `.dockerdev/bin/worktree init` to regenerate it.
+    YAML
+    say "Created #{OVERRIDE_FILE} (project: #{config.dig("compose", "project_name")}, ports: #{PORTS.keys.map { env[_1] }.join(", ")})"
+  end
+
+  def copy_files
+    COPY_FILES.each do |file|
+      src = File.join(main_dir, file)
+      next if !File.exist?(src) || File.exist?(file)
+
+      FileUtils.mkdir_p(File.dirname(file))
+      FileUtils.cp(src, file, preserve: true)
+      say "Copied #{file}"
+    end
+  end
+
+  def ensure_shared_volumes
+    shared_volumes.each do |name|
+      sh! "docker", "volume", "create", name, out: File::NULL unless volume_exists?(name)
+    end
+  end
+
+  # `dip compose down --volumes` keeps external volumes, so RESET_DOCKER removes them here
+  def reset_shared_volumes
+    if linked_worktree?
+      say "Kept the shared volumes (other checkouts use them). Reset them from #{main_dir}"
+    else
+      existing = shared_volumes.select { volume_exists?(_1) }
+      sh! "docker", "volume", "rm", *existing if existing.any?
+    end
+
+    ensure_shared_volumes
+  end
+
+  def clone_volumes
+    project = override_project(toplevel)
+    image = compose_config.dig("x-app", "image")
+
+    Array(compose_config.dig("x-worktree", "clone")).each do |volume|
+      src = "#{main_project}_#{volume}"
+      dst = "#{project}_#{volume}"
+
+      next if volume_exists?(dst)
+      unless volume_exists?(src)
+        say "Skipped #{volume} volume: #{src} doesn't exist (run `dip provision` in #{main_dir})"
+        next
+      end
+
+      say "Cloning #{src} → #{dst}..."
+      # Labels make Compose treat the volume as its own (and let `drop` find it)
+      sh! "docker", "volume", "create",
+        "--label", "com.docker.compose.project=#{project}",
+        "--label", "com.docker.compose.volume=#{volume}",
+        dst, out: File::NULL
+      # NOTE: a plain copy isn't safe for the volumes of running databases (e.g., Postgres data)
+      sh! "docker", "run", "--rm", "--entrypoint", "sh",
+        "-v", "#{src}:/from", "-v", "#{dst}:/to", image, "-c", "cp -a /from/. /to/"
+    end
+  end
+
+  # == Git
+
+  def toplevel = @toplevel ||= git!("rev-parse", "--show-toplevel").first.strip
+
+  def common_dir = @common_dir ||= git!("rev-parse", "--path-format=absolute", "--git-common-dir").first.strip
+
+  def main_dir = File.dirname(common_dir)
+
+  def linked_worktree?
+    git_dir = git!("rev-parse", "--path-format=absolute", "--git-dir").first.strip
+    git_dir != common_dir
+  end
+
+  def worktrees_dir
+    ENV.fetch("WORKTREES_DIR") { File.join(File.dirname(main_dir), "#{File.basename(main_dir)}-wt") }
+  end
+
+  # Linked worktrees only (the first entry of the list is the main one)
+  def worktrees
+    out, _ = git!("-C", main_dir, "worktree", "list", "--porcelain")
+    out.split("\n\n").drop(1).map do |entry|
+      lines = entry.lines.map(&:strip)
+      {
+        path: lines.find { _1.start_with?("worktree ") }.delete_prefix("worktree "),
+        branch: lines.find { _1.start_with?("branch ") }&.delete_prefix("branch refs/heads/")
+      }
+    end
+  end
+
+  def find_worktree(target)
+    expanded = File.expand_path(target)
+    found = worktrees.select do |wt|
+      wt[:path] == expanded || File.basename(wt[:path]) == target || wt[:branch] == target ||
+        override_env(wt[:path])["GIT_WORKTREE_ID"] == target
+    end
+
+    raise Error, "Can't drop the main checkout" if expanded == main_dir
+    raise Error, "No worktree matches #{target.inspect} (see `git worktree list`)" if found.empty?
+    raise Error, "#{target.inspect} matches several worktrees: #{found.map { _1[:path] }.join(", ")}" if found.size > 1
+
+    found.first
+  end
+
+  def git_ok?(*args) = system("git", "-C", main_dir, *args)
+
+  def git!(*args) = capture!("git", *args)
+
+  # == Config
+
+  def compose_config
+    @compose_config ||= YAML.safe_load_file(File.join(main_dir, COMPOSE_FILE), aliases: true)
+  end
+
+  def compose_volumes = compose_config.fetch("volumes", {})
+
+  def shared_volumes
+    compose_volumes.values.select { _1&.fetch("external", false) }.map { _1.fetch("name") }
+  end
+
+  def main_project
+    @main_project ||= YAML.safe_load_file(File.join(main_dir, "dip.yml"), aliases: true).dig("compose", "project_name")
+  end
+
+  def override(path)
+    file = File.join(path, OVERRIDE_FILE)
+    File.exist?(file) ? YAML.safe_load_file(file) || {} : {}
+  end
+
+  def override_env(path) = override(path).fetch("environment", {})
+
+  def override_project(path) = override(path).dig("compose", "project_name")
+
+  def other_worktree_envs
+    worktrees.reject { _1[:path] == toplevel }.map { override_env(_1[:path]) }
+  end
+
+  # == Helpers
+
+  def slugify(name)
+    slug = name.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-+|-+\z/, "")[0, ID_MAX_LENGTH].delete_suffix("-")
+    raise Error, "Can't make a worktree name from #{name.inspect}" if slug.empty?
+
+    slug
+  end
+
+  def volume_exists?(name) = system("docker", "volume", "inspect", name, out: File::NULL, err: File::NULL)
+
+  def clean_env = DIP_ENV_KEYS.to_h { [_1, nil] }
+
+  def say(msg) = puts(msg)
+
+  def sh!(*cmd, **opts)
+    system(*cmd, exception: true, **opts)
+  rescue RuntimeError, SystemCallError => e
+    raise Error, e.message
+  end
+
+  def capture!(*cmd)
+    out, err, status = Open3.capture3(*cmd)
+    raise Error, "#{cmd.join(" ")} failed: #{err.strip}" unless status.success?
+
+    [out, err]
+  end
+end
+
+begin
+  Worktree.new.run(*ARGV)
+rescue Worktree::Error => e
+  warn "❌ #{e.message}"
+  exit 1
+end

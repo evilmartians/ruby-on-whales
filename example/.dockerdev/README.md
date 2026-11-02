@@ -32,6 +32,24 @@ dip rails s
 
 ## Developing with Dip
 
+### Git worktrees
+
+Each git worktree gets its own Docker env: a Compose project, host ports, databases, and `node_modules`.
+
+```sh
+# Create a worktree at ../<project>-wt/<branch-slug> and provision it
+dip worktree:new feat/my-feature
+
+# Remove the worktree, its containers and volumes (the branch stays)
+dip worktree:drop my-feature
+```
+
+Then `cd` into the worktree and use `dip` as usual. `dip worktree:new` prints the URLs.
+
+Worktrees created by other tools (`git worktree add`, editors, AI agents) are set up by the [lefthook](https://github.com/evilmartians/lefthook) `post-checkout` hook. `dip provision` installs the hooks if lefthook is present. Without the hook, run `dip worktree:init` in the new worktree. Then run `dip provision` there.
+
+See `.dockerdev/bin/worktree` on how it works.
+
 ### Useful commands
 
 ```sh

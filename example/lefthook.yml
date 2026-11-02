@@ -1,0 +1,5 @@
+post-checkout:
+  commands:
+    # Sets up the Docker env for new git worktrees (no-op otherwise)
+    worktree:
+      run: .dockerdev/bin/worktree hook {1}

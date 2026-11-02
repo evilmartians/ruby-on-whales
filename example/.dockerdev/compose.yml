@@ -19,7 +19,7 @@ x-backend: &backend
   stdin_open: true
   tty: true
   volumes:
-    - ..:/${PWD}/cached
+    - ${PWD}:/${PWD}:cached
     - bundle:/usr/local/bundle
     - rails_cache:/${PWD}/tmp/cache
     - node_modules:/${PWD}/node_modules
@@ -27,7 +27,8 @@ x-backend: &backend
     - packs-test:/${PWD}/public/packs-test
     - history:/usr/local/hist
     - claude:/root/.claude
-    - ./.claude.json:/root/.claude.json
+    # Claude main config (auth tokens, project list). Worktrees use the main checkout's file (see dip.override.yml)
+    - ${GIT_WORKTREE_MAIN_DIR:-..}/.dockerdev/.claude.json:/root/.claude.json
     - ./.psqlrc:/root/.psqlrc:ro
     - ./.bashrc:/root/.bashrc:ro
   environment: &backend_environment
@@ -45,6 +46,8 @@ x-backend: &backend
     IRB_HISTFILE: /usr/local/hist/.irb_history
     EDITOR: vi
     CLAUDE_CODE_TMPDIR: /root/.claude/__tmp__
+    # Set in git worktrees (see dip.override.yml)
+    GIT_WORKTREE_ID: ${GIT_WORKTREE_ID:-}
   depends_on: &backend_depends_on
     postgres:
       condition: service_healthy
@@ -60,7 +63,7 @@ services:
     <<: *backend
     command: bundle exec rails server -b 0.0.0.0
     ports:
-      - '3000:3000'
+      - '${RAILS_PORT:-3000}:3000'
     depends_on:
       webpacker:
         condition: service_started
@@ -114,10 +117,17 @@ services:
       <<: *backend_environment
       VITE_RUBY_HOST: 0.0.0.0 # bind to container
     ports:
-      - "3036:3036"
+      - "${VITE_PORT:-3036}:3036"
 
+# List the volumes to be cloned into a worktree's setup on checkout
+x-worktree:
+  clone: [node_modules]
+
+# NOTE: external volumes are reused by all worktree clones
 volumes:
   bundle:
+    external: true
+    name: example_demo_bundle
   node_modules:
   history:
   rails_cache:
@@ -126,3 +136,5 @@ volumes:
   packs:
   packs-test:
   claude:
+    external: true
+    name: example_demo_claude
